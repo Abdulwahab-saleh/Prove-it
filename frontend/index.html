@@ -1,0 +1,5014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<title>PROVE IT — Psychological Recovery Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   CSS VARIABLES & RESET
+   ============================================================ */
+:root {
+  --gold:        #c9a84c;
+  --gold-dim:    #8a6d2e;
+  --gold-glow:   #c9a84c33;
+  --white:       #f0ede6;
+  --gray:        #6b6b6b;
+  --gray-light:  #999;
+  --surface:     #0d0d0d;
+  --surface2:    #141414;
+  --surface3:    #1a1a1a;
+  --border:      #222;
+  --border2:     #2a2a2a;
+  --danger:      #c45a3c;
+  --success:     #4caf7d;
+  --radius:      2px;
+  --transition:  0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html {
+  font-size: 16px;
+  height: 100%;
+  height: -webkit-fill-available;
+}
+body {
+  background: #000;
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  height: 100%;
+  height: -webkit-fill-available;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ============================================================
+   SCREEN TRANSITION SYSTEM
+   ============================================================ */
+.screen {
+  position: fixed;
+  inset: 0;
+  top: env(safe-area-inset-top, 0);
+  bottom: env(safe-area-inset-bottom, 0);
+  left: env(safe-area-inset-left, 0);
+  right: env(safe-area-inset-right, 0);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  height: -webkit-fill-available;
+  height: var(--app-height, 100dvh);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity var(--transition), transform var(--transition);
+  will-change: opacity, transform;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.screen.slide-back { transform: translateY(-12px); }
+
+/* ============================================================
+   LOADING PULSE OVERLAY
+   Shows when fetching data from the backend
+   ============================================================ */
+#loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  backdrop-filter: blur(2px);
+}
+#loading-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+.loading-pulse-ring {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  border-top-color: var(--gold);
+  border-right-color: var(--gold-dim);
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-pulse-dots {
+  display: flex;
+  gap: 5px;
+}
+.loading-pulse-dots span {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+.loading-pulse-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-pulse-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); background: var(--gold); }
+}
+.loading-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   API STATUS INDICATOR (top-right corner)
+   ============================================================ */
+#api-status {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--gray);
+  padding: 4px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#api-status.visible { opacity: 1; }
+.api-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gray);
+}
+#api-status.connected .api-dot { background: var(--success); }
+#api-status.error .api-dot     { background: var(--danger); }
+#api-status.connected          { color: var(--success); border-color: #1a2e22; }
+#api-status.error              { color: var(--danger);  border-color: #2e1a1a; }
+
+/* ============================================================
+   XP BAR
+   ============================================================ */
+#xp-bar-container {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: transparent;
+  z-index: 9999;
+  pointer-events: none;
+}
+#xp-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), #ffe48a);
+  box-shadow: 0 0 6px var(--gold);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   EXIT OVERLAY
+   ============================================================ */
+#exit-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.97);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+#exit-overlay.visible { opacity: 1; pointer-events: all; }
+.exit-seal {
+  font-size: 36px;
+  margin-bottom: 1.5rem;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+.exit-message {
+  font-size: clamp(18px, 5vw, 24px);
+  font-weight: 800;
+  line-height: 1.3;
+  max-width: 320px;
+  margin-bottom: 0.75rem;
+}
+.exit-message span { color: var(--gold); }
+.exit-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--gray);
+  letter-spacing: 0.08em;
+  max-width: 280px;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+}
+.exit-close-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--gray-light);
+  padding: 0.75rem 2rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.exit-close-btn:hover { border-color: var(--gold-dim); color: var(--white); }
+
+/* ============================================================
+   SHARED UTILITY COMPONENTS
+   ============================================================ */
+.nav-back {
+  position: absolute;
+  top: 1.25rem; left: 1.25rem;
+  background: none;
+  border: none;
+  color: var(--gray);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  transition: color 0.15s;
+  z-index: 20;
+  text-transform: uppercase;
+}
+.nav-back:hover { color: var(--white); }
+.nav-back svg   { transition: transform 0.15s; }
+.nav-back:hover svg { transform: translateX(-3px); }
+
+.nav-exit {
+  position: absolute;
+  top: 1.25rem; right: 1.25rem;
+  background: none;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 20;
+  transition: color 0.15s;
+  font-size: 18px;
+  line-height: 1;
+}
+.nav-exit:hover { color: var(--gray); }
+
+.btn-primary {
+  background: var(--gold);
+  color: #000;
+  border: none;
+  padding: 1rem 2.5rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  position: relative;
+}
+.btn-primary:hover  { background: #e0ba5a; transform: translateY(-1px); }
+.btn-primary:active { transform: scale(0.98); }
+
+.btn-continue {
+  width: 100%;
+  background: var(--surface2);
+  color: var(--gray);
+  border: 1px solid var(--border);
+  padding: 0.9rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-continue.ready {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+.btn-continue.ready:hover { background: #e0ba5a; }
+.btn-continue:disabled:not(.ready) { cursor: not-allowed; }
+
+/* ============================================================
+   AUTH SCREEN — Login / Register
+   ============================================================ */
+#screen-auth {
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+  position: relative;
+}
+.auth-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 60%, #1a1200 0%, #000 70%);
+  pointer-events: none;
+}
+.auth-pulse {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid #c9a84c18;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.auth-pulse:nth-child(2) { width: 320px; height: 320px; animation: pulse 3s ease-in-out infinite; }
+.auth-pulse:nth-child(3) { width: 520px; height: 520px; animation: pulse 3s ease-in-out infinite 1s; }
+.auth-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+.auth-logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.auth-logo-title {
+  font-size: clamp(56px, 14vw, 80px);
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+}
+.auth-logo-title span { color: var(--gold); text-shadow: 0 0 40px var(--gold-glow); display: block; }
+.auth-logo-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--gold-dim);
+  margin-bottom: 0.6rem;
+}
+.auth-tagline {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  color: var(--gray-light);
+  line-height: 1.55;
+  margin-top: 1rem;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.auth-tabs {
+  display: flex;
+  border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+.auth-tab {
+  flex: 1;
+  padding: 0.65rem;
+  background: none;
+  border: none;
+  color: var(--gray);
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.auth-tab.active {
+  background: var(--gold);
+  color: #000;
+}
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.auth-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+.auth-input {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  padding: 0.7rem 0.9rem;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.auth-input:focus { border-color: var(--gold-dim); }
+.auth-input::placeholder { color: #2e2e2e; }
+.auth-btn {
+  width: 100%;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  padding: 0.95rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 6px;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+.auth-btn:hover { background: #e0ba5a; }
+.auth-error {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--danger);
+  letter-spacing: 0.08em;
+  text-align: center;
+  min-height: 20px;
+  margin-top: 8px;
+}
+.auth-guest {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+.auth-guest-btn {
+  background: none;
+  border: none;
+  color: var(--gray);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+.auth-guest-btn:hover { color: var(--gray-light); }
+
+/* ============================================================
+   DOMAIN CATEGORIES (Hierarchical)
+   ============================================================ */
+.domain-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+}
+.domain-category-group {}
+.domain-cat-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  border-left: 2px solid var(--gold-dim);
+  padding-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.domain-cat-title svg { width: 12px; height: 12px; stroke: var(--gold-dim); flex-shrink: 0; }
+.domain-cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* ============================================================
+   SEARCH BAR
+   ============================================================ */
+.feed-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.6rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  background: #000;
+}
+.feed-search-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.feed-search-input:focus { border-color: var(--gold-dim); }
+.feed-search-input::placeholder { color: #333; font-size: 11px; }
+.feed-search-clear {
+  background: none;
+  border: none;
+  color: var(--gray);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  display: none;
+  transition: color 0.15s;
+}
+.feed-search-clear.visible { display: block; }
+.feed-search-clear:hover { color: var(--white); }
+
+/* ============================================================
+   PROFILE MODAL
+   ============================================================ */
+#profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 15000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+#profile-overlay.visible { opacity: 1; pointer-events: all; }
+.profile-sheet {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  transform: translateY(40px);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  border-radius: 4px 4px 0 0;
+}
+#profile-overlay.visible .profile-sheet { transform: translateY(0); }
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+.profile-header-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.profile-header-title span { color: var(--gold); }
+.profile-close {
+  background: none;
+  border: none;
+  color: var(--gray);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.profile-close:hover { color: var(--white); }
+.profile-body { padding: 1.25rem; }
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.profile-avatar {
+  width: 54px;
+  height: 54px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gold);
+  flex-shrink: 0;
+  clip-path: polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+}
+.profile-hero-info {}
+.profile-hero-name {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 3px;
+}
+.profile-hero-domain {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+.profile-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 1.25rem;
+}
+.profile-stat-box {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+}
+.profile-stat-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+}
+.profile-stat-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--gray);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.profile-section-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.profile-skills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 1.25rem;
+}
+.profile-skill-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--gold-dim);
+  background: #1a1500;
+  border: 1px solid #2a2000;
+  padding: 3px 8px;
+}
+.profile-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+.profile-recent-item {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+}
+.profile-recent-q {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--gray-light);
+  margin-bottom: 6px;
+}
+.profile-recent-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+}
+.profile-recent-pts {
+  color: var(--gold);
+  font-weight: 700;
+}
+.profile-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--gray);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.profile-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #100e00;
+  border: 1px solid var(--gold-dim);
+  padding: 4px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.profile-certs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 1.25rem;
+}
+.profile-cert-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--success);
+  background: #0a1a0f;
+  border: 1px solid #1a3a1f;
+  padding: 3px 8px;
+}
+
+/* Profile name clickable in answers feed */
+.q-answer-author {
+  cursor: pointer;
+  color: var(--gold-dim);
+  transition: color 0.15s;
+}
+.q-answer-author:hover { color: var(--gold); text-decoration: underline; }
+
+#screen-launch {
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 2rem;
+  text-align: center;
+  overflow: hidden;
+}
+.launch-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 60%, #1a1200 0%, #000 70%);
+  pointer-events: none;
+}
+.launch-pulse {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid #c9a84c18;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.launch-pulse:nth-child(2) { width: 320px;  height: 320px;  animation: pulse 3s   ease-in-out infinite; }
+.launch-pulse:nth-child(3) { width: 520px;  height: 520px;  animation: pulse 3s   ease-in-out infinite 1s; }
+.launch-pulse:nth-child(4) { width: 720px;  height: 720px;  animation: pulse 3s   ease-in-out infinite 2s; }
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50%       { opacity: 0.1; transform: translate(-50%, -50%) scale(1.03); }
+}
+.launch-content { position: relative; z-index: 1; }
+.launch-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+.launch-title {
+  font-size: clamp(60px, 14vw, 100px);
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  color: var(--white);
+  margin-bottom: 0.2rem;
+}
+.launch-title span {
+  color: var(--gold);
+  display: block;
+  text-shadow: 0 0 40px var(--gold-glow);
+}
+.launch-sub {
+  font-size: 13px;
+  color: var(--gray);
+  margin: 1.5rem auto 1.75rem;
+  line-height: 1.75;
+  max-width: 272px;
+}
+/* Name input on launch */
+.launch-name-row {
+  margin: 0 auto 2rem;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.launch-name-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  text-align: left;
+}
+.launch-name-input {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  padding: 0.65rem 0.9rem;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+  text-align: center;
+}
+.launch-name-input:focus  { border-color: var(--gold-dim); }
+.launch-name-input::placeholder { color: #2e2e2e; }
+#launch-exit {
+  position: absolute;
+  top: 1.5rem; right: 1.5rem;
+  background: none;
+  border: none;
+  color: #2a2a2a;
+  cursor: pointer;
+  font-size: 20px;
+  transition: color 0.2s;
+  z-index: 10;
+}
+#launch-exit:hover { color: var(--gray); }
+
+/* ============================================================
+   SCREEN 1 — DOMAIN SELECTION
+   ============================================================ */
+#screen-domain { overflow-y: auto; }
+.domain-header-bar {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+.header-logo {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.header-logo span { color: var(--gold); }
+.domain-body {
+  flex: 1;
+  padding: 1.75rem 1.5rem;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+.step-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gold-dim);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.75rem;
+}
+.step-title {
+  font-size: clamp(22px, 6vw, 30px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
+.step-title span { color: var(--gold); }
+.step-sub {
+  font-size: 13px;
+  color: var(--gray);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+.domains-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+.domain-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+.domain-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 30%, var(--gold-glow), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.domain-card:hover               { border-color: var(--gold-dim); background: #0f0f0f; }
+.domain-card:hover::after        { opacity: 0.4; }
+.domain-card.selected            { border-color: var(--gold); background: #100e00; }
+.domain-card.selected::after     { opacity: 0.6; }
+.domain-card.selected::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+}
+.domain-icon { width: 28px; height: 28px; margin-bottom: 0.5rem; opacity: 0.75; position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; color: var(--gold-dim); }
+.domain-icon svg { width: 22px; height: 22px; }
+.domain-card:hover .domain-icon, .domain-card.selected .domain-icon { opacity: 1; color: var(--gold); }
+.domain-cat-title { display: flex; align-items: center; gap: 6px; }
+.domain-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  position: relative;
+  z-index: 1;
+  transition: color 0.15s;
+}
+.domain-card.selected .domain-name { color: var(--gold); }
+.domain-desc {
+  font-size: 10px;
+  color: var(--gray);
+  margin-top: 3px;
+  font-family: 'DM Mono', monospace;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   SCREEN 2 — QUESTION FEED
+   ============================================================ */
+#screen-feed { padding: 0; }
+.feed-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #000;
+  position: sticky; top: 0; z-index: 10;
+}
+.feed-logo { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+.feed-logo span { color: var(--gold); }
+.rank-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 5px 11px;
+  font-size: 11px;
+}
+.rank-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: glow-dot 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes glow-dot {
+  0%, 100% { box-shadow: 0 0 0 0 #c9a84c44; }
+  50%       { box-shadow: 0 0 0 5px #c9a84c22; }
+}
+.rank-label { color: var(--gray); font-family: 'DM Mono', monospace; font-size: 10px; }
+.rank-value { color: var(--white); font-weight: 700; font-size: 12px; }
+.feed-toggle {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: #000;
+}
+.toggle-btn {
+  flex: 1;
+  padding: 0.7rem;
+  background: none;
+  border: none;
+  color: var(--gray);
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+}
+.toggle-btn::before {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.toggle-btn.active         { color: var(--gold); }
+.toggle-btn.active::before { transform: scaleX(1); }
+.feed-domain-chip {
+  padding: 0.5rem 1.25rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.feed-domain-chip span { color: var(--gold); }
+.questions-list {
+  padding: 1rem 1.1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.1rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.q-card:hover    { border-color: #333; background: #0f0f0f; }
+.q-card.selected { border-color: var(--gold); background: #0c0b00; }
+.q-card.selected::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+}
+.q-urgency {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.urgency-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: blink 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+.urgency-urgent   { color: var(--danger); }
+.urgency-open     { color: var(--gray); }
+.urgency-dot-open { background: var(--gray); animation: none; }
+.q-text { font-size: 14px; line-height: 1.6; color: var(--white); margin-bottom: 0.75rem; flex: 1; }
+.q-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gray);
+}
+.q-footer-left { display: flex; align-items: center; gap: 8px; }
+.q-tag {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  padding: 2px 8px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+.btn-shuffle {
+  background: none;
+  border: none;
+  color: var(--gray);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 13px;
+  transition: all 0.15s;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+.btn-shuffle:hover { color: var(--gold); transform: rotate(90deg); }
+.feed-action-bar {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+  background: #000;
+  position: sticky;
+  bottom: 0;
+}
+
+/* ============================================================
+   SCREEN 3 — ANSWER
+   ============================================================ */
+#screen-answer { flex-direction: column; }
+.answer-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: sticky; top: 0;
+  background: #000;
+  z-index: 10;
+}
+.answer-back {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  padding: 5px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.answer-back:hover { border-color: #444; color: var(--white); }
+.answer-domain-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+.answer-body {
+  padding: 1.5rem 1.25rem;
+  flex: 1;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+.prove-it-label {
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 0.5rem;
+}
+.answer-question {
+  font-size: clamp(17px, 4.5vw, 22px);
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.answer-area-label {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--gray);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.textarea-wrapper { position: relative; }
+.answer-textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  padding: 1rem;
+  resize: none;
+  min-height: 140px;
+  max-height: 400px;
+  overflow-y: auto;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  border-radius: var(--radius);
+}
+.answer-textarea:focus { border-color: var(--gold-dim); box-shadow: 0 0 0 1px var(--gold-dim); }
+.answer-textarea::placeholder { color: #2e2e2e; }
+.typing-progress-bar {
+  height: 2px;
+  background: var(--surface3);
+  margin-top: -1px;
+  border: 1px solid var(--border);
+  border-top: none;
+  overflow: hidden;
+}
+.typing-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  transition: width 0.3s ease;
+}
+.answer-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #000;
+  position: sticky; bottom: 0;
+}
+.char-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--gray);
+  transition: color 0.2s;
+}
+.char-count.ready { color: var(--gold-dim); }
+.btn-submit {
+  background: #1a1a1a;
+  color: var(--gray);
+  border: 1px solid var(--border);
+  padding: 0.85rem 1.5rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: not-allowed;
+  transition: all 0.25s;
+  opacity: 0.4;
+}
+.btn-submit.active {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+  cursor: pointer;
+  opacity: 1;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  box-shadow: 0 0 20px var(--gold-glow), 0 0 40px #c9a84c18;
+  animation: submit-glow 2s ease-in-out infinite;
+}
+@keyframes submit-glow {
+  0%, 100% { box-shadow: 0 0 16px var(--gold-glow); }
+  50%       { box-shadow: 0 0 28px #c9a84c55, 0 0 50px #c9a84c18; }
+}
+.btn-submit.active:hover  { background: #e0ba5a; transform: translateY(-1px); }
+.btn-submit.active:active { transform: scale(0.98); }
+
+/* ============================================================
+   SCREEN 4 — RANK UP
+   ============================================================ */
+#screen-rank {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+.rank-burst { position: absolute; inset: 0; pointer-events: none; }
+.rank-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+}
+.rank-ring.animate { animation: ring-out 1.4s ease-out forwards; }
+.rank-ring:nth-child(2) { animation-delay: 0.25s !important; }
+.rank-ring:nth-child(3) { animation-delay: 0.5s  !important; }
+@keyframes ring-out {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(6); opacity: 0; }
+}
+.rank-content { position: relative; z-index: 1; }
+.rank-stamp {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 1.5rem;
+}
+.rank-up-title {
+  font-size: clamp(44px, 12vw, 60px);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.45s ease 0.15s;
+}
+.rank-up-title.show         { opacity: 1; transform: translateY(0); }
+.rank-up-title span         { color: var(--gold); display: block; }
+.rank-up-sub {
+  font-size: 13px;
+  color: var(--gray);
+  margin: 1rem auto 2rem;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.5s;
+  line-height: 1.6;
+  max-width: 240px;
+}
+.rank-up-sub.show { opacity: 1; }
+.rank-meter {
+  width: 220px;
+  margin: 0 auto 2rem;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.7s;
+}
+.rank-meter.show { opacity: 1; }
+.rank-meter-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.rank-bar-bg { height: 3px; background: var(--surface3); border: 1px solid var(--border); overflow: hidden; }
+.rank-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  width: 0%;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 6px var(--gold);
+}
+/* Points earned flash */
+.rank-pts-flash {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--success);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.35s;
+}
+.rank-pts-flash.show { opacity: 1; }
+.rank-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.95s;
+}
+.rank-actions.show { opacity: 1; }
+.btn-next {
+  background: var(--gold);
+  color: #000;
+  border: none;
+  padding: 0.85rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-next:hover { background: #e0ba5a; }
+.btn-cert {
+  background: none;
+  color: var(--gold-dim);
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-cert:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+/* ============================================================
+   SCREEN 5 — CERTIFICATE (PRESTIGE EDITION)
+   ============================================================ */
+#screen-cert {
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  background: #000;
+  overflow-y: auto;
+}
+.cert-back-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem 0.5rem;
+  flex-shrink: 0;
+  width: 100%;
+}
+.btn-back-sm {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+.btn-back-sm:hover { border-color: #444; color: var(--white); }
+.cert-draft-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+.cert-wrap {
+  position: relative;
+  background: #08070a;
+  border: 1px solid #2a2200;
+  margin: 0 1rem 0.5rem;
+  padding: 1.5rem 1.25rem 1.25rem;
+  max-width: 480px;
+  width: calc(100% - 2rem);
+  align-self: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.cert-circuit-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.cert-holo-border {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(135deg,
+    transparent 0%, #c9a84c08 20%, transparent 40%,
+    #c9a84c06 60%, transparent 80%, #c9a84c04 100%);
+  animation: cert-holo-shift 6s ease-in-out infinite alternate;
+}
+@keyframes cert-holo-shift {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+.cert-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-dim), var(--gold), transparent);
+  z-index: 2;
+}
+.cert-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  z-index: 2;
+}
+.cert-wrap > *:not(.cert-circuit-bg):not(.cert-holo-border):not(.cert-corner):not(.cert-watermark) {
+  position: relative;
+  z-index: 3;
+}
+.cert-corner {
+  position: absolute;
+  width: 20px; height: 20px;
+  border-color: var(--gold);
+  border-style: solid;
+  z-index: 4;
+}
+.cert-corner-tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+.cert-corner-tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+.cert-corner-bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+.cert-corner-br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+.cert-watermark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: clamp(48px, 14vw, 80px);
+  font-weight: 800;
+  color: transparent;
+  -webkit-text-stroke: 1px #c9a84c08;
+  letter-spacing: 0.2em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 1;
+}
+.cert-header {
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #1e1800;
+}
+.cert-org-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.cert-seal { font-size: 22px; color: var(--gold); }
+.cert-org-name {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  line-height: 1;
+}
+.cert-title-sm {
+  font-family: 'DM Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-top: 2px;
+}
+.cert-divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  margin: 0.75rem 0;
+}
+.cert-presents {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.cert-user-name-big {
+  font-size: clamp(18px, 5vw, 28px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  margin-bottom: 0.35rem;
+  line-height: 1.1;
+}
+.cert-authority-line {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.cert-authority-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #1a1200, #120d00);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 6px 20px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 0 20px #c9a84c18;
+}
+.cert-domain-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0d0a00;
+  border: 1px solid #1e1800;
+  padding: 0.75rem 1rem;
+  margin: 0.9rem 0;
+}
+.cert-domain-block { text-align: center; flex: 1; }
+.cert-domain-sep { width: 1px; height: 36px; background: #1e1800; }
+.cert-field-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.cert-field-val {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.cert-section { margin-bottom: 0.9rem; }
+.cert-section-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #151200;
+}
+.cert-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+.cert-skill-tag {
+  background: #1a1500;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  padding: 3px 10px;
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.05em;
+}
+.cert-skill-tag.empty {
+  background: var(--surface2);
+  border-color: #1a1a1a;
+  color: #222;
+}
+.cert-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.cert-stat { text-align: center; background: #080600; border: 1px solid #1e1800; padding: 0.6rem 0.25rem; }
+.cert-stat-num { font-size: 22px; font-weight: 800; color: var(--gold); line-height: 1; text-shadow: 0 0 15px #c9a84c44; }
+.cert-stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  color: var(--gray);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.cert-mastery-item { margin-bottom: 8px; }
+.cert-mastery-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  color: var(--gray);
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+.cert-mastery-pct { color: var(--gold-dim); }
+.cert-mastery-bar-bg {
+  height: 3px;
+  background: #151200;
+  border: 1px solid #1e1800;
+  overflow: hidden;
+}
+.cert-mastery-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 6px var(--gold-dim);
+}
+.cert-rank-bar { height: 2px; background: #151200; margin-top: 0.9rem; overflow: hidden; }
+.cert-rank-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); transition: width 1s ease; }
+.cert-footer {
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #1e1800;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
+}
+.cert-footer-right { text-align: right; }
+.cert-id { font-family: 'DM Mono', monospace; font-size: 8px; color: #3a3000; letter-spacing: 0.08em; }
+.cert-verify-url { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--gold-dim); letter-spacing: 0.06em; margin-top: 2px; opacity: 0.8; }
+.cert-hash-label { font-family: 'DM Mono', monospace; font-size: 7px; color: #2a2a2a; letter-spacing: 0.1em; text-transform: uppercase; }
+.cert-hash-val { font-family: 'DM Mono', monospace; font-size: 8px; color: #333; letter-spacing: 0.05em; margin-bottom: 3px; }
+.cert-status { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--gold-dim); letter-spacing: 0.12em; text-transform: uppercase; }
+.cert-top-tag {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--gold-dim);
+  background: #120f00;
+  border: 1px solid var(--gold-dim);
+  padding: 2px 8px;
+  text-transform: uppercase;
+}
+.cert-cta { display: flex; gap: 8px; margin: 0.75rem 1rem 0; width: calc(100% - 2rem); max-width: 480px; align-self: center; flex-shrink: 0; }
+.cert-cta button {
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: var(--radius);
+}
+.btn-primary-sm { background: var(--gold); color: #000; border: none; }
+.btn-primary-sm:hover { background: #e0ba5a; }
+.btn-ghost { background: none; color: var(--gray); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: #444; color: var(--white); }
+.cert-unlock-note {
+  margin: 0.5rem 1rem 1rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+  letter-spacing: 0.06em;
+  text-align: center;
+  opacity: 0.6;
+  align-self: center;
+  max-width: 480px;
+}
+@media print {
+  body > *:not(#screen-cert) { display: none !important; }
+  #screen-cert { position: static !important; opacity: 1 !important; transform: none !important; pointer-events: all !important; display: flex !important; }
+  .cert-back-row, .cert-cta, .cert-unlock-note { display: none !important; }
+  .cert-wrap { border: 2px solid #999; margin: 0 auto; box-shadow: none; }
+}
+
+/* ============================================================
+   POST QUESTION BUTTON
+   ============================================================ */
+.btn-post-q {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--gold-dim);
+  padding: 0.9rem 1rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-post-q:hover { border-color: var(--gold-dim); color: var(--gold); background: #0f0e00; }
+
+/* ============================================================
+   POST QUESTION MODAL OVERLAY
+   ============================================================ */
+#post-q-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.93);
+  z-index: 15000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(3px);
+}
+#post-q-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+.post-q-sheet {
+  width: 100%;
+  max-width: 600px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-bottom: none;
+  padding: 1.5rem 1.25rem 2rem;
+  transform: translateY(40px);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px 4px 0 0;
+}
+#post-q-overlay.visible .post-q-sheet {
+  transform: translateY(0);
+}
+.post-q-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.post-q-title {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.post-q-title span { color: var(--gold); }
+.post-q-close {
+  background: none;
+  border: none;
+  color: var(--gray);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+  transition: color 0.15s;
+}
+.post-q-close:hover { color: var(--white); }
+.post-q-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 0.4rem;
+  display: block;
+}
+.post-q-textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  padding: 0.85rem 1rem;
+  resize: none;
+  min-height: 110px;
+  outline: none;
+  border-radius: var(--radius);
+  transition: border-color 0.2s;
+  margin-bottom: 0.75rem;
+}
+.post-q-textarea:focus { border-color: var(--gold-dim); }
+.post-q-textarea::placeholder { color: #2e2e2e; }
+.post-q-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.post-q-select {
+  flex: 1;
+  min-width: 140px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 0.65rem 0.75rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  border-radius: var(--radius);
+  appearance: none;
+  -webkit-appearance: none;
+}
+.post-q-select:focus { border-color: var(--gold-dim); }
+.post-q-select option { background: #111; }
+.post-q-submit {
+  width: 100%;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  padding: 0.9rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+.post-q-submit:hover { background: #e0ba5a; }
+.post-q-submit:disabled { background: var(--surface3); color: #333; clip-path: none; cursor: not-allowed; }
+.post-q-success {
+  text-align: center;
+  padding: 1.5rem 0 0.5rem;
+  display: none;
+}
+.post-q-success-icon { font-size: 28px; margin-bottom: 0.5rem; }
+.post-q-success-msg {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--success);
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   INLINE ANSWERS — تظهر تحت كل سؤال مباشرة
+   ============================================================ */
+.q-answers-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.q-answer-item {
+  background: #0a0a0a;
+  border: 1px solid #1e1e1e;
+  border-left: 2px solid var(--gold-dim);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  animation: fadeIn 0.35s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.q-answer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+.q-answer-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+.q-answer-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: #333;
+  letter-spacing: 0.06em;
+}
+.q-answer-text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #c8c5be;
+}
+.q-answer-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--gray);
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #181818;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.q-answer-count-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+}
+/* زر "اكتب إجابة" داخل الكارد */
+.btn-answer-inline {
+  margin-top: 10px;
+  width: 100%;
+  background: none;
+  border: 1px solid #222;
+  color: #444;
+  padding: 0.6rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+.btn-answer-inline:hover { border-color: var(--gold-dim); color: var(--gold-dim); }
+/* Inline compose box داخل الكارد */
+.inline-compose {
+  margin-top: 10px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 0.25s ease;
+}
+.inline-compose.open { display: flex; }
+.inline-compose-textarea {
+  width: 100%;
+  background: #080808;
+  border: 1px solid #222;
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 0.75rem;
+  resize: none;
+  min-height: 90px;
+  outline: none;
+  border-radius: var(--radius);
+  transition: border-color 0.2s;
+}
+.inline-compose-textarea:focus { border-color: var(--gold-dim); }
+.inline-compose-textarea::placeholder { color: #1e1e1e; }
+.inline-compose-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.btn-inline-submit {
+  background: var(--gold);
+  color: #000;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);
+  transition: background 0.15s;
+}
+.btn-inline-submit:hover { background: #e0ba5a; }
+.btn-inline-cancel {
+  background: none;
+  border: none;
+  color: #333;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color 0.15s;
+  text-transform: uppercase;
+}
+.btn-inline-cancel:hover { color: var(--gray); }
+
+
+/* ============================================================
+   SCREEN 6 — RANK DETAIL (NEW)
+   Interactive rank details showing user progress & activity
+   ============================================================ */
+#screen-rank-detail {
+  flex-direction: column;
+  background: #000;
+  overflow-y: auto;
+}
+.rank-detail-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #000;
+  position: sticky; top: 0; z-index: 10;
+}
+.rank-detail-back {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  padding: 5px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.rank-detail-back:hover { border-color: #444; color: var(--white); }
+.rank-detail-title {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.rank-detail-title span { color: var(--gold); }
+.rank-detail-body {
+  flex: 1;
+  padding: 1.5rem 1.25rem;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+.rank-hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius);
+}
+.rank-hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.rank-hero-rank {
+  font-size: clamp(48px, 12vw, 72px);
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-shadow: 0 0 40px var(--gold-glow);
+  margin-bottom: 0.5rem;
+}
+.rank-hero-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.rank-hero-progress {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+}
+.rank-hero-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.rank-hero-progress-bar {
+  height: 4px;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  border-radius: 2px;
+}
+.rank-hero-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), #ffe48a);
+  width: 0%;
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px var(--gold);
+}
+.rank-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+.rank-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  border-radius: var(--radius);
+  transition: all 0.2s;
+}
+.rank-stat-card:hover {
+  border-color: var(--gold-dim);
+  background: #0f0e00;
+}
+.rank-stat-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.rank-stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.rank-stat-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: #333;
+  margin-top: 4px;
+  letter-spacing: 0.06em;
+}
+.rank-activity-section {
+  margin-bottom: 1.5rem;
+}
+.rank-section-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.rank-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.rank-timeline-item {
+  display: flex;
+  gap: 12px;
+  padding: 1rem 0;
+  border-bottom: 1px solid #151515;
+  position: relative;
+}
+.rank-timeline-item:last-child { border-bottom: none; }
+.rank-timeline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  margin-top: 4px;
+  flex-shrink: 0;
+  position: relative;
+}
+.rank-timeline-dot::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: calc(100% + 1rem);
+  background: #1a1a1a;
+}
+.rank-timeline-item:last-child .rank-timeline-dot::after { display: none; }
+.rank-timeline-dot.rank-up {
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+.rank-timeline-content { flex: 1; }
+.rank-timeline-action {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 3px;
+}
+.rank-timeline-action span { color: var(--gold); }
+.rank-timeline-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+  letter-spacing: 0.06em;
+}
+.rank-timeline-pts {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--success);
+  font-weight: 500;
+  margin-left: auto;
+  align-self: flex-start;
+}
+.rank-levels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rank-level-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.2s;
+}
+.rank-level-item.current {
+  border-color: var(--gold);
+  background: #0c0b00;
+}
+.rank-level-item.current .rank-level-num { color: var(--gold); }
+.rank-level-item.locked { opacity: 0.4; }
+.rank-level-item.unlocked { border-color: #2a2a2a; }
+.rank-level-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray);
+  width: 40px;
+  flex-shrink: 0;
+}
+.rank-level-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--white);
+  flex: 1;
+}
+.rank-level-status {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.rank-level-item.current .rank-level-status { color: var(--gold); }
+.rank-level-item.unlocked .rank-level-status { color: var(--success); }
+.rank-skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.rank-skill-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+  border-radius: var(--radius);
+}
+.rank-skill-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.rank-skill-bar {
+  height: 3px;
+  background: var(--surface3);
+  overflow: hidden;
+  border-radius: 1px;
+}
+.rank-skill-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  transition: width 0.8s ease;
+}
+.rank-skill-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+  margin-top: 4px;
+  text-align: right;
+}
+.rank-heatmap {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.rank-heatmap-day {
+  aspect-ratio: 1;
+  background: var(--surface3);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+.rank-heatmap-day.level-1 { background: #1a1500; }
+.rank-heatmap-day.level-2 { background: #2a2000; }
+.rank-heatmap-day.level-3 { background: #3a2d00; }
+.rank-heatmap-day.level-4 { background: var(--gold-dim); }
+.rank-heatmap-day.level-5 { background: var(--gold); box-shadow: 0 0 4px var(--gold-glow); }
+.rank-heatmap-labels {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 6px;
+}
+.rank-heatmap-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  color: #333;
+  text-align: center;
+  letter-spacing: 0.06em;
+}
+.rank-compare-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.rank-compare-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+  width: 80px;
+  flex-shrink: 0;
+  letter-spacing: 0.06em;
+}
+.rank-compare-track {
+  flex: 1;
+  height: 6px;
+  background: var(--surface3);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+.rank-compare-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+.rank-compare-fill.user {
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+}
+.rank-compare-fill.avg {
+  background: linear-gradient(90deg, #2a2a2a, #444);
+}
+.rank-compare-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.rank-detail-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  background: #000;
+  position: sticky;
+  bottom: 0;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+.rank-detail-footer button {
+  flex: 1;
+  padding: 0.85rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: var(--radius);
+}
+.rank-empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--gray);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   MOBILE FULL SCREEN — safe area & touch fixes
+   ============================================================ */
+@supports (height: 100dvh) {
+  .screen { height: 100dvh !important; }
+}
+
+/* Feed action bar safe area bottom */
+.feed-action-bar {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Answer footer safe area */
+.answer-footer {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Rank detail footer */
+.rank-detail-footer {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Cert CTA */
+.cert-cta {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Touch scroll momentum */
+.questions-list,
+.answer-body,
+.domain-body,
+.rank-detail-body,
+#screen-cert {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent double-tap zoom on buttons */
+button, a {
+  touch-action: manipulation;
+}
+
+/* Fix 100vh on iOS Safari — use JS to set --vh variable */
+
+/* ── DELETE BUTTONS ── */
+.q-answer-meta-right {
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-delete-answer {
+  background: none; border: none; cursor: pointer;
+  color: #252525; padding: 2px 5px; border-radius: 3px;
+  transition: color .2s, background .2s;
+  opacity: 0; pointer-events: none;
+  display: flex; align-items: center;
+}
+.q-answer-item:hover .btn-delete-answer {
+  opacity: 1; pointer-events: auto;
+}
+.btn-delete-answer:hover { color: #c0392b; background: #1a0000; }
+.btn-delete-question {
+  margin-top: 8px; width: 100%;
+  background: none; border: 1px solid #1c1c1c;
+  cursor: pointer; color: #2a2a2a;
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: .1em; padding: 5px;
+  border-radius: 3px; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.btn-delete-question:hover { color: #c0392b; border-color: #3a0000; background: #0d0000; }
+.q-card.removing {
+  animation: cardOut .3s ease forwards;
+  pointer-events: none;
+}
+@keyframes cardOut {
+  to { opacity: 0; transform: translateX(-10px); max-height: 0; padding: 0; margin: 0; overflow: hidden; }
+}
+.q-answer-item.removing {
+  animation: answerOut .25s ease forwards;
+  pointer-events: none;
+  overflow: hidden;
+}
+@keyframes answerOut {
+  to { opacity: 0; max-height: 0; padding: 0; margin: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     LOADING PULSE OVERLAY
+     ════════════════════════════════════════════════════════════ -->
+<div id="loading-overlay" role="status" aria-label="Loading">
+  <div class="loading-pulse-ring"></div>
+  <div class="loading-pulse-dots">
+    <span></span><span></span><span></span>
+  </div>
+  <p class="loading-label" id="loading-label">FETCHING DATA</p>
+</div>
+
+<!-- API status pill -->
+<div id="api-status">
+  <div class="api-dot"></div>
+  <span id="api-status-text">API</span>
+</div>
+
+<!-- XP bar -->
+<div id="xp-bar-container" aria-hidden="true">
+  <div id="xp-bar-fill"></div>
+</div>
+
+<!-- Exit overlay -->
+<div id="exit-overlay" role="dialog" aria-modal="true">
+  <div class="exit-seal">◈</div>
+  <p class="exit-message">You've reclaimed<br><span>your value today.</span></p>
+  <p class="exit-sub">Every answer is a permanent record — yours, real, timestamped.</p>
+  <button class="exit-close-btn" onclick="closeExit()">RETURN TO ARENA</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN AUTH — Login / Register
+     ════════════════════════════════════════════════════════════ -->
+<div id="screen-auth" class="screen active">
+  <div class="auth-bg"></div>
+  <div class="auth-pulse"></div>
+  <div class="auth-pulse"></div>
+
+  <div class="auth-content">
+    <div class="auth-logo">
+      <div class="auth-logo-sub">POST-DOPAMINE RECOVERY ENGINE</div>
+      <div class="auth-logo-title">PROVE<br><span>IT.</span></div>
+      <p class="auth-tagline">Someone out there is stuck on a problem you solved years ago. Stop scrolling. Start proving.</p>
+    </div>
+
+    <!-- Hidden tabs/forms (kept for DOM compatibility, not shown) -->
+    <div id="auth-tabs" style="display:none;">
+      <button class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">SIGN IN</button>
+      <button class="auth-tab" id="auth-tab-register" onclick="switchAuthTab('register')">CREATE ACCOUNT</button>
+    </div>
+    <div id="auth-login-form" style="display:none;">
+      <input class="auth-input" id="auth-username-login" type="email" placeholder="you@domain.com"/>
+      <input class="auth-input" id="auth-pass-login" type="password" placeholder="••••••••"/>
+    </div>
+    <div id="auth-register-form" style="display:none;">
+      <input class="auth-input" id="auth-name-reg" type="text" placeholder="Anonymous"/>
+      <input class="auth-input" id="auth-username-reg" type="email" placeholder="you@domain.com"/>
+      <input class="auth-input" id="auth-pass-reg" type="password" placeholder="••••••••"/>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
+
+    <!-- Single enter button -->
+    <button class="auth-btn" onclick="continueAsGuest()" style="margin-top:2rem;">ENTER THE ARENA →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN 0 — LAUNCH (kept for guest flow)
+     ════════════════════════════════════════════════════════════ -->
+<div id="screen-launch" class="screen">
+  <div class="launch-bg" aria-hidden="true"></div>
+  <div class="launch-pulse" aria-hidden="true"></div>
+  <div class="launch-pulse" aria-hidden="true"></div>
+  <div class="launch-pulse" aria-hidden="true"></div>
+
+  <button id="launch-exit" onclick="showExit()" aria-label="Close session">✕</button>
+
+  <div class="launch-content">
+    <p class="launch-tag">Post-Dopamine Recovery Engine</p>
+    <h1 class="launch-title">PROVE<span>IT.</span></h1>
+    <p class="launch-sub">Someone out there is stuck on a problem you solved years ago. Stop scrolling. Start proving.</p>
+
+    <div class="launch-name-row">
+      <label class="launch-name-label" for="input-name">YOUR NAME (OPTIONAL)</label>
+      <input
+        class="launch-name-input"
+        id="input-name"
+        type="text"
+        placeholder="Anonymous"
+        maxlength="40"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <button class="btn-primary" onclick="startSession()">I ACCEPT THE CHALLENGE</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN 1 — DOMAIN SELECTION
+     ════════════════════════════════════════════════════════════ -->
+<div id="screen-domain" class="screen">
+  <div class="domain-header-bar">
+    <button class="nav-back" style="position:relative;top:auto;left:auto;" onclick="navigateBack('screen-auth')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Back
+    </button>
+    <div class="header-logo">PROVE<span>IT.</span></div>
+    <button class="nav-exit" style="position:relative;top:auto;right:auto;" onclick="showExit()">✕</button>
+  </div>
+
+  <div class="domain-body">
+    <div style="margin-bottom:2rem;">
+      <p class="step-num">01 / 02 — SPECIALIZATION</p>
+      <h2 class="step-title">What is your<br><span>domain of power?</span></h2>
+      <p class="step-sub">Pick your arena. You are not a generalist — you are an authority.</p>
+    </div>
+
+    <div class="domain-categories" id="domain-categories">
+      <!-- Technology -->
+      <div class="domain-category-group">
+        <div class="domain-cat-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          التقنية
+        </div>
+        <div class="domain-cat-grid">
+          <div class="domain-card" data-domain="Programming" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <div class="domain-name">البرمجة وتطوير التطبيقات</div>
+            <div class="domain-desc">Software / Apps</div>
+          </div>
+          <div class="domain-card" data-domain="Security" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="domain-name">الأمن السيبراني</div>
+            <div class="domain-desc">Cybersecurity / Hacking</div>
+          </div>
+          <div class="domain-card" data-domain="AI" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+            </div>
+            <div class="domain-name">الذكاء الاصطناعي</div>
+            <div class="domain-desc">AI / Machine Learning</div>
+          </div>
+          <div class="domain-card" data-domain="Sysadmin" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            </div>
+            <div class="domain-name">إدارة الأنظمة والسيرفرات</div>
+            <div class="domain-desc">Systems / Servers</div>
+          </div>
+          <div class="domain-card" data-domain="Gaming" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 2l-4 5-4-5"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="12" y1="10" x2="12" y2="16"/></svg>
+            </div>
+            <div class="domain-name">الألعاب وتطوير الألعاب</div>
+            <div class="domain-desc">Gaming / Game Dev</div>
+          </div>
+          <div class="domain-card" data-domain="Repair" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+            </div>
+            <div class="domain-name">صيانة الجوالات والإلكترونيات</div>
+            <div class="domain-desc">Phones / Electronics Repair</div>
+          </div>
+          <div class="domain-card" data-domain="Networking" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="16" y="2" width="6" height="6" rx="1"/><rect x="9" y="16" width="6" height="6" rx="1"/><line x1="5" y1="8" x2="5" y2="14"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="5" y1="14" x2="12" y2="19"/><line x1="19" y1="14" x2="12" y2="19"/></svg>
+            </div>
+            <div class="domain-name">الشبكات والبنية التحتية</div>
+            <div class="domain-desc">Networking / Infrastructure</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business & Finance -->
+      <div class="domain-category-group">
+        <div class="domain-cat-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          الأعمال والمال
+        </div>
+        <div class="domain-cat-grid">
+          <div class="domain-card" data-domain="Finance" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="domain-name">التجارة والاستثمار</div>
+            <div class="domain-desc">Trading / Investing</div>
+          </div>
+          <div class="domain-card" data-domain="Accounting" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="domain-name">المحاسبة والمالية</div>
+            <div class="domain-desc">Accounting / Finance</div>
+          </div>
+          <div class="domain-card" data-domain="Ecommerce" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+            </div>
+            <div class="domain-name">التجارة الإلكترونية والدروبشيبنق</div>
+            <div class="domain-desc">E-Commerce / Dropshipping</div>
+          </div>
+          <div class="domain-card" data-domain="RealEstate" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <div class="domain-name">العقار والتطوير العقاري</div>
+            <div class="domain-desc">Real Estate / Development</div>
+          </div>
+          <div class="domain-card" data-domain="Marketing" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="domain-name">التسويق الرقمي</div>
+            <div class="domain-desc">Digital Marketing / Ads</div>
+          </div>
+          <div class="domain-card" data-domain="Law" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22V2M17 5H9.5a3.5 3.5 0 000 7h5"/><line x1="3" y1="20" x2="21" y2="20"/><polyline points="6 12 3 7 9 7"/><polyline points="18 12 21 7 15 7"/></svg>
+            </div>
+            <div class="domain-name">القانون والاستشارات القانونية</div>
+            <div class="domain-desc">Law / Legal Consulting</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Health & Science -->
+      <div class="domain-category-group">
+        <div class="domain-cat-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          الصحة والعلوم
+        </div>
+        <div class="domain-cat-grid">
+          <div class="domain-card" data-domain="Medicine" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4.8 2.3A.3.3 0 105 2H4"/><path d="M7 20H4a2 2 0 01-2-2V7a2 2 0 012-2h16a2 2 0 012 2v11a2 2 0 01-2 2h-3"/><rect x="9" y="10" width="6" height="10" rx="1"/><path d="M12 10v10M9 13h6"/></svg>
+            </div>
+            <div class="domain-name">الطب والتمريض</div>
+            <div class="domain-desc">Medicine / Nursing</div>
+          </div>
+          <div class="domain-card" data-domain="Fitness" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            </div>
+            <div class="domain-name">الجيم والتغذية</div>
+            <div class="domain-desc">Gym / Nutrition</div>
+          </div>
+          <div class="domain-card" data-domain="Psychology" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+            <div class="domain-name">علم النفس والسلوك</div>
+            <div class="domain-desc">Psychology / Behavior</div>
+          </div>
+          <div class="domain-card" data-domain="Engineering" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41M2 12h2M20 12h2M17.66 17.66l1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2"/></svg>
+            </div>
+            <div class="domain-name">الهندسة</div>
+            <div class="domain-desc">Engineering</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creative -->
+      <div class="domain-category-group">
+        <div class="domain-cat-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><path d="M17 12H3a5 5 0 0010 0"/><path d="M19.07 4.93l1.41-1.41"/></svg>
+          الإبداع والمحتوى
+        </div>
+        <div class="domain-cat-grid">
+          <div class="domain-card" data-domain="Design" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>
+            </div>
+            <div class="domain-name">تصميم الجرافيك والمونتاج</div>
+            <div class="domain-desc">Design / Editing</div>
+          </div>
+          <div class="domain-card" data-domain="Photography" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <div class="domain-name">التصوير وصناعة المحتوى</div>
+            <div class="domain-desc">Photography / Content</div>
+          </div>
+          <div class="domain-card" data-domain="Education" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+            </div>
+            <div class="domain-name">التعليم والتدريب التقني</div>
+            <div class="domain-desc">Education / Tech Training</div>
+          </div>
+          <div class="domain-card" data-domain="Writing" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <div class="domain-name">الكتابة والترجمة</div>
+            <div class="domain-desc">Writing / Translation</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lifestyle -->
+      <div class="domain-category-group">
+        <div class="domain-cat-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          أسلوب الحياة
+        </div>
+        <div class="domain-cat-grid">
+          <div class="domain-card" data-domain="Cars" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-2"/><circle cx="9" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="domain-name">السيارات والتعديلات</div>
+            <div class="domain-desc">Cars / Modifications</div>
+          </div>
+          <div class="domain-card" data-domain="Aviation" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+            </div>
+            <div class="domain-name">الطيران والملاحة</div>
+            <div class="domain-desc">Aviation / Navigation</div>
+          </div>
+          <div class="domain-card" data-domain="Cooking" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            </div>
+            <div class="domain-name">الطبخ والمطاعم</div>
+            <div class="domain-desc">Cooking / F&B</div>
+          </div>
+          <div class="domain-card" data-domain="General" onclick="selectDomain(this)">
+            <div class="domain-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            </div>
+            <div class="domain-name">عام — كل المجالات</div>
+            <div class="domain-desc">General / All</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-continue" id="btn-continue-domain" disabled onclick="confirmDomain()">
+      SELECT A DOMAIN
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN 2 — QUESTION FEED
+     ════════════════════════════════════════════════════════════ -->
+<div id="screen-feed" class="screen">
+  <div class="feed-header">
+    <button class="nav-back" style="position:relative;top:auto;left:auto;" onclick="navigateBack('screen-domain')">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Domain
+    </button>
+    <div class="feed-logo">PROVE<span>IT.</span></div>
+    <div class="rank-badge" onclick="openRankDetail()">
+      <div class="rank-dot"></div>
+      <span class="rank-label">RANK</span>
+      <span class="rank-value" id="rank-display">Λ-01</span>
+    </div>
+  </div>
+  <div style="position:absolute;top:1rem;right:1rem;z-index:20;display:flex;gap:6px;">
+    <button onclick="openMyProfile()" style="background:none;border:1px solid var(--border);color:var(--gray);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;padding:4px 8px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold-dim)';this.style.color='var(--gold-dim)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gray)'">MY PROFILE</button>
+  </div>
+
+  <div class="feed-toggle" role="tablist">
+    <button class="toggle-btn active" id="tab-expert" role="tab" onclick="switchTab('expert')">⚡ EXPERTISE</button>
+    <button class="toggle-btn" id="tab-human" role="tab" onclick="switchTab('human')">✦ HUMANITY</button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="feed-search-bar">
+    <input
+      class="feed-search-input"
+      id="feed-search-input"
+      type="search"
+      placeholder="ابحث في الأسئلة..."
+      oninput="onSearchInput(this)"
+    />
+    <button class="feed-search-clear" id="feed-search-clear" onclick="clearSearch()">✕</button>
+  </div>
+
+  <div class="feed-domain-chip">Domain: <span id="feed-domain-chip">—</span></div>
+
+  <div class="questions-list" id="questions-list" role="list"></div>
+
+  <div class="feed-action-bar" style="display:flex;gap:10px;align-items:center;">
+    <button class="btn-continue ready" id="btn-answer" disabled onclick="openAnswer()" style="flex:1;">
+      PROVE IT →
+    </button>
+    <button class="btn-post-q" onclick="openPostQuestion()" title="Post a Question">+ POST</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN 3 — ANSWER
+     ════════════════════════════════════════════════════════════ -->
+<div id="screen-answer" class="screen">
+  <div class="answer-header">
+    <button class="answer-back" onclick="navigateBack('screen-feed')">
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      BACK
+    </button>
+    <span class="answer-domain-tag" id="answer-domain-tag">DOMAIN</span>
+    <button class="nav-exit" style="position:relative;top:auto;right:auto;margin-left:auto;" onclick="showExit()">✕</button>
+  </div>
+
+  <div class="answer-body">
+    <p class="prove-it-label">— Prove It</p>
+    <h2 class="answer-question" id="answer-question-text">Loading question…</h2>
+
+    <p class="answer-area-label">YOUR AUTHORITY</p>
+    <div class="textarea-wrapper">
+      <textarea
+        class="answer-textarea"
+        id="answer-textarea"
+        placeholder="Write your answer. No fluff. Pure signal."
+        oninput="onAnswerInput(this)"
+        rows="6"
+      ></textarea>
+    </div>
+    <div class="typing-progress-bar" aria-hidden="true">
+      <div class="typing-progress-fill" id="typing-progress-fill"></div>
+    </div>
+  </div>
+
+  <div class="answer-footer">
+    <span class="char-count" id="char-count">0 chars · type to unlock</span>
+    <button class="btn-submit" id="btn-submit" disabled onclick="submitAnswer()">SUBMIT →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN 4 — RANK UP
+     ════════════════════════════════════════════════════════════ -->
+<div id="screen-rank" class="screen">
+  <div class="rank-burst" aria-hidden="true">
+    <div class="rank-ring" style="width:180px;height:180px;"></div>
+    <div class="rank-ring" style="width:180px;height:180px;"></div>
+    <div class="rank-ring" style="width:180px;height:180px;"></div>
+  </div>
+
+  <div class="rank-content">
+    <p class="rank-stamp">ANSWER LOGGED · IMPACT REGISTERED</p>
+    <h2 class="rank-up-title" id="rank-up-heading">RANK<span>ELEVATED.</span></h2>
+    <p class="rank-pts-flash" id="rank-pts-flash">+0 PTS</p>
+    <p class="rank-up-sub" id="rank-up-sub">You answered. That matters.</p>
+
+    <div class="rank-meter" id="rank-meter">
+      <div class="rank-meter-label">
+        <span id="rank-prev-label">Λ-01</span>
+        <span id="rank-next-label">Λ-02</span>
+      </div>
+      <div class="rank-bar-bg">
+        <div class="rank-bar-fill" id="rank-bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="rank-actions" id="rank-actions">
+      <button class="btn-next" onclick="goNextQuestion()">NEXT QUESTION →</button>
+      <button class="btn-cert" onclick="openCertificate()">VIEW LIVE CERTIFICATE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN 5 — CERTIFICATE (PRESTIGE EDITION)
+     ════════════════════════════════════════════════════════════ -->
+<div id="screen-cert" class="screen">
+  <div class="cert-back-row">
+    <button class="btn-back-sm" onclick="navigateBack('screen-rank')">← BACK</button>
+    <span class="cert-draft-badge">◈ PROOF OF IMPACT</span>
+  </div>
+
+  <!-- The Certificate Card (printable) -->
+  <div class="cert-wrap" id="cert-printable">
+    <!-- Circuit board SVG pattern background -->
+    <svg class="cert-circuit-bg" aria-hidden="true" viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <line x1="0" y1="80" x2="120" y2="80" stroke="#c9a84c18" stroke-width="1"/>
+      <line x1="120" y1="80" x2="120" y2="20" stroke="#c9a84c18" stroke-width="1"/>
+      <circle cx="120" cy="20" r="3" fill="none" stroke="#c9a84c22" stroke-width="1"/>
+      <line x1="300" y1="0" x2="300" y2="120" stroke="#c9a84c12" stroke-width="1"/>
+      <line x1="300" y1="120" x2="400" y2="120" stroke="#c9a84c12" stroke-width="1"/>
+      <circle cx="300" cy="60" r="4" fill="none" stroke="#c9a84c18" stroke-width="1"/>
+      <line x1="0" y1="480" x2="80" y2="480" stroke="#c9a84c15" stroke-width="1"/>
+      <line x1="80" y1="480" x2="80" y2="560" stroke="#c9a84c15" stroke-width="1"/>
+      <line x1="350" y1="400" x2="400" y2="400" stroke="#c9a84c12" stroke-width="1"/>
+      <line x1="350" y1="400" x2="350" y2="560" stroke="#c9a84c12" stroke-width="1"/>
+      <circle cx="80" cy="480" r="3" fill="none" stroke="#c9a84c20" stroke-width="1"/>
+      <circle cx="350" cy="400" r="3" fill="none" stroke="#c9a84c18" stroke-width="1"/>
+      <line x1="160" y1="200" x2="240" y2="200" stroke="#c9a84c10" stroke-width="1" stroke-dasharray="4 6"/>
+      <circle cx="200" cy="200" r="12" fill="none" stroke="#c9a84c10" stroke-width="1"/>
+    </svg>
+
+    <!-- Holographic border -->
+    <div class="cert-holo-border"></div>
+
+    <!-- Corners -->
+    <div class="cert-corner cert-corner-tl"></div>
+    <div class="cert-corner cert-corner-tr"></div>
+    <div class="cert-corner cert-corner-bl"></div>
+    <div class="cert-corner cert-corner-br"></div>
+
+    <div class="cert-watermark" aria-hidden="true">PROVEN</div>
+
+    <!-- Header -->
+    <div class="cert-header">
+      <div class="cert-org-row">
+        <span class="cert-seal">◈</span>
+        <div>
+          <p class="cert-org-name">PROVE IT</p>
+          <p class="cert-title-sm">PROOF OF IMPACT — AUTHORITY RECORD</p>
+        </div>
+      </div>
+
+      <div class="cert-divider-gold"></div>
+
+      <p class="cert-presents">THIS CERTIFIES THAT</p>
+      <h2 class="cert-user-name-big" id="cert-user-name">—</h2>
+      <p class="cert-authority-line">HAS DEMONSTRATED VERIFIED AUTHORITY AS</p>
+      <div class="cert-authority-badge" id="cert-authority-title">Senior Expert</div>
+      <span class="cert-top-tag" id="cert-top-tag" style="display:none;"></span>
+    </div>
+
+    <!-- Domain + Rank -->
+    <div class="cert-domain-row">
+      <div class="cert-domain-block">
+        <p class="cert-field-label">DOMAIN</p>
+        <p class="cert-field-val" id="cert-domain-name">—</p>
+      </div>
+      <div class="cert-domain-sep"></div>
+      <div class="cert-domain-block">
+        <p class="cert-field-label">RANK</p>
+        <p class="cert-field-val" id="cert-rank-label">Λ-01</p>
+      </div>
+      <div class="cert-domain-sep"></div>
+      <div class="cert-domain-block">
+        <p class="cert-field-label">ISSUED</p>
+        <p class="cert-field-val" id="cert-issued-date">—</p>
+      </div>
+    </div>
+
+    <div class="cert-section">
+      <p class="cert-section-title">IMPACT SCORE</p>
+      <div class="cert-stats">
+        <div class="cert-stat">
+          <div class="cert-stat-num" id="cert-answers">0</div>
+          <div class="cert-stat-label">ANSWERS</div>
+        </div>
+        <div class="cert-stat">
+          <div class="cert-stat-num" id="cert-rank-num">1</div>
+          <div class="cert-stat-label">RANK LVL</div>
+        </div>
+        <div class="cert-stat">
+          <div class="cert-stat-num" id="cert-score">0</div>
+          <div class="cert-stat-label">SCORE</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cert-section">
+      <p class="cert-section-title">PROVEN SKILLS</p>
+      <div class="cert-skills" id="cert-skills"></div>
+    </div>
+
+    <div class="cert-section" id="cert-mastery-section" style="display:none;">
+      <p class="cert-section-title">DOMAIN MASTERY</p>
+      <div id="cert-mastery-bars"></div>
+    </div>
+
+    <div class="cert-rank-bar">
+      <div class="cert-rank-fill" id="cert-rank-fill" style="width:0%"></div>
+    </div>
+
+    <!-- Footer with verify URL -->
+    <div class="cert-footer">
+      <div>
+        <div class="cert-id" id="cert-id">ID: PI-000000</div>
+        <div class="cert-verify-url" id="cert-verify-url">prove-it.app/verify/—</div>
+      </div>
+      <div class="cert-footer-right">
+        <div class="cert-hash-label">VERIFY HASH</div>
+        <div class="cert-hash-val" id="cert-verify-hash">—</div>
+        <span class="cert-status">● ACTIVE</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cert-cta">
+    <button class="btn-primary-sm" onclick="goNextQuestion()">KEEP PROVING →</button>
+    <button class="btn-ghost" onclick="printCert()">⬇ SAVE / PRINT</button>
+    <button class="btn-ghost" onclick="shareCert()">SHARE</button>
+  </div>
+
+  <p class="cert-unlock-note" id="cert-unlock-note"></p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE VIEWPORT FIX
+   Fixes the 100vh iOS Safari browser-chrome bug
+   ══════════════════════════════════════════════════════════════ */
+(function() {
+  function setVH() {
+    var vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', vh + 'px');
+    document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+  }
+  setVH();
+  window.addEventListener('resize', setVH);
+  window.addEventListener('orientationchange', function() {
+    setTimeout(setVH, 100);
+  });
+  // Also fix on scroll (iOS address bar show/hide)
+  window.addEventListener('scroll', setVH, { passive: true });
+})();
+
+
+
+/* ══════════════════════════════════════════════════════════════
+   CONFIGURATION
+   ══════════════════════════════════════════════════════════════ */
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? `http://${window.location.hostname}:5000` : window.location.origin;
+
+/* ══════════════════════════════════════════════════════════════
+   CLIENT STATE  (mirrors server, kept in sync after each API call)
+   ══════════════════════════════════════════════════════════════ */
+// Storage for all answers, keyed by question id
+let answersStore = {}; // { questionId: [{name, text, time}] }
+
+let state = {
+  // Session
+  sessionId:   null,
+  name:        'Anonymous',
+  domain:      null,
+  // Progress (synced from server)
+  score:       0,
+  answers:     0,
+  rankLevel:   1,
+  certId:      null,
+  topTag:      null,
+  // UI
+  currentTab:  'expert',
+  selectedQ:   null,
+  seenIds:     [],         // IDs answered this session
+  // Local question pools (fetched from /get-questions)
+  questions:   { expert: [], human: [] },
+  // Last submit result
+  lastPts:     0,
+  prevRank:    'Λ-01',
+  newRank:     'Λ-01',
+  // Activity tracking for rank detail
+  activityHistory: [],
+  streak: 0,
+};
+
+const RANKS = ['Λ-01','Λ-02','Λ-03','Λ-04','Λ-05','Ω-01','Ω-02','Ω-APEX'];
+
+const RANK_DESCRIPTIONS = {
+  'Λ-01': 'Initiate — First steps into the arena',
+  'Λ-02': 'Aspirant — Building momentum',
+  'Λ-03': 'Contender — Proving consistency',
+  'Λ-04': 'Challenger — Rising through ranks',
+  'Λ-05': 'Veteran — Established authority',
+  'Ω-01': 'Elite — Top percentile performer',
+  'Ω-02': 'Master — Near peak performance',
+  'Ω-APEX': 'Apex — Ultimate authority'
+};
+
+const SKILL_KEYWORDS = {
+  Programming: ["CLEAN CODE","API DESIGN","DEBUGGING","ARCHITECTURE"],
+  Security:    ["THREAT MODELING","PENTESTING","INFOSEC","NETWORK OPS"],
+  Medicine:    ["DIAGNOSTICS","PATIENT CARE","CLINICAL OPS","PROTOCOLS"],
+  Engineering: ["SYSTEMS DESIGN","CAD / DRAFTING","PROBLEM SOLVING","QA"],
+  Finance:     ["RISK ANALYSIS","PORTFOLIO","MARKET STRUCTURE","VALUATION"],
+  Fitness:     ["PROGRAMMING","NUTRITION PLANS","RECOVERY","FORM & TECHNIQUE"],
+  Design:      ["VISUAL SYSTEMS","MOTION","BRAND IDENTITY","UX RESEARCH"],
+  Cars:        ["DIAGNOSTICS","TUNING","BODYWORK","PERFORMANCE MODS"],
+  AI:          ["ML PIPELINES","PROMPT ENG","MODEL EVAL","DATA STRATEGY"],
+  Sysadmin:    ["SERVER OPS","MONITORING","AUTOMATION","SECURITY HARDENING"],
+  Photography: ["COMPOSITION","LIGHTING","POST-PROCESSING","STORYTELLING"],
+  Ecommerce:   ["PRODUCT SOURCING","CONVERSION","ADS STRATEGY","LOGISTICS"],
+  Repair:      ["HARDWARE DIAG","SOLDERING","FIRMWARE","PARTS SOURCING"],
+  Gaming:      ["GAME DESIGN","MECHANICS","BALANCE","ENGINE SCRIPTING"],
+  Aviation:    ["NAVIGATION","EMERGENCY PROC","AIRSPACE","INSTRUMENT RATING"],
+  Law:         ["CONTRACTS","LEGAL RESEARCH","DISPUTE RES","COMPLIANCE"],
+  RealEstate:  ["VALUATION","NEGOTIATION","DUE DILIGENCE","DEAL STRUCTURING"],
+  Accounting:  ["FINANCIAL REPORTING","TAX STRATEGY","AUDITING","BUDGETING"],
+  Education:   ["CURRICULUM DESIGN","FACILITATION","ASSESSMENT","MENTORSHIP"],
+  // Legacy keys kept for fallback
+  Code:        ["SYSTEMS DESIGN","DEBUGGING","ARCHITECTURE","API PATTERNS"],
+  Data:        ["ML PIPELINES","ANALYTICS","DATA STRATEGY","MODELING"],
+  Ops:         ["STRATEGY","PROCESS DESIGN","SYSTEMS THINKING","SCALING"],
+};
+
+/* ══════════════════════════════════════════════════════════════
+   NAVIGATION
+   ══════════════════════════════════════════════════════════════ */
+let currentScreen = 'screen-auth';
+
+function navigateTo(targetId) {
+  const current = document.getElementById(currentScreen);
+  const target  = document.getElementById(targetId);
+  current.classList.remove('active');
+  target.classList.remove('slide-back');
+  void target.offsetWidth;
+  target.classList.add('active');
+  currentScreen = targetId;
+  if (targetId === 'screen-rank') _animateRankScreen();
+  if (targetId === 'screen-rank-detail') _animateRankDetailScreen();
+}
+
+function navigateBack(targetId) {
+  const current = document.getElementById(currentScreen);
+  current.classList.remove('active');
+  const target = document.getElementById(targetId);
+  target.classList.add('slide-back');
+  void target.offsetWidth;
+  target.classList.remove('slide-back');
+  target.classList.add('active');
+  currentScreen = targetId;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LOADING & API STATUS
+   ══════════════════════════════════════════════════════════════ */
+let _loadingCount = 0;
+
+function showLoading(label = 'FETCHING DATA') {
+  _loadingCount++;
+  document.getElementById('loading-label').textContent = label;
+  document.getElementById('loading-overlay').classList.add('visible');
+}
+
+function hideLoading() {
+  _loadingCount = Math.max(_loadingCount - 1, 0);
+  if (_loadingCount === 0) {
+    document.getElementById('loading-overlay').classList.remove('visible');
+  }
+}
+
+function setApiStatus(status) { // 'connected' | 'error' | 'checking'
+  const el   = document.getElementById('api-status');
+  const text = document.getElementById('api-status-text');
+  el.classList.remove('connected', 'error');
+  el.classList.add('visible');
+  if (status === 'connected') {
+    el.classList.add('connected');
+    text.textContent = 'API LIVE';
+    setTimeout(() => el.classList.remove('visible'), 3000);
+  } else if (status === 'error') {
+    el.classList.add('error');
+    text.textContent = 'OFFLINE — LOCAL MODE';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   API LAYER  — all fetch() calls live here
+   Falls back gracefully when server is unreachable.
+   ══════════════════════════════════════════════════════════════ */
+async function apiPost(path, body) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 4000);
+  try {
+    const res = await fetch(API_BASE + path, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+      signal:  controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === 'AbortError') throw new Error('Request timed out');
+    throw err;
+  }
+}
+
+async function apiGet(path) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 4000);
+  try {
+    const res = await fetch(API_BASE + path, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === 'AbortError') throw new Error('Request timed out');
+    throw err;
+  }
+}
+
+/* Sync local state from a server user object */
+function syncUserState(user) {
+  state.sessionId = user.session_id;
+  state.name      = user.name      || 'Anonymous';
+  state.score     = user.score     || 0;
+  state.answers   = user.answers   || 0;
+  state.rankLevel = user.rank_level || 1;
+  state.certId    = user.cert_id;
+  state.topTag    = user.top_tag;
+  if (user.domain) state.domain = user.domain;
+
+  // Update rank badge
+  const rankLabel = RANKS[Math.min(state.rankLevel - 1, RANKS.length - 1)];
+  document.getElementById('rank-display').textContent = rankLabel;
+  updateXPBar();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   AUTH FUNCTIONS
+   ══════════════════════════════════════════════════════════════ */
+function switchAuthTab(tab) {
+  document.getElementById('auth-tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('auth-tab-register').classList.toggle('active', tab === 'register');
+  document.getElementById('auth-login-form').style.display    = tab === 'login' ? '' : 'none';
+  document.getElementById('auth-register-form').style.display = tab === 'register' ? '' : 'none';
+  document.getElementById('auth-error').textContent = '';
+}
+
+function setAuthError(msg) {
+  document.getElementById('auth-error').textContent = msg;
+}
+
+async function doLogin() {
+  const username = document.getElementById('auth-username-login').value.trim();
+  const pass     = document.getElementById('auth-pass-login').value;
+  if (!username || !pass) { setAuthError('Please enter username and password'); return; }
+
+  showLoading('AUTHENTICATING');
+  try {
+    const res = await apiPost('/login', { username, password: pass });
+    hideLoading();
+    if (res.error) { setAuthError(res.error); return; }
+    state.name    = res.name || 'Anonymous';
+    state._userId = res.user_id;
+    if (res.session_id) {
+      state.sessionId = res.session_id;
+      state.domain    = res.domain;
+      state.score     = res.score     || 0;
+      state.answers   = res.answers   || 0;
+      state.rankLevel = res.rank_level || 1;
+      state.certId    = res.cert_id;
+      const rankLabel = RANKS[Math.min(state.rankLevel - 1, RANKS.length - 1)];
+      document.getElementById('rank-display').textContent = rankLabel;
+    }
+    setApiStatus('connected');
+    navigateTo('screen-domain');
+  } catch(e) {
+    hideLoading();
+    setApiStatus('error');
+    setAuthError('Cannot connect to server. Please make sure the backend is running.');
+  }
+}
+
+async function doRegister() {
+  const name     = document.getElementById('auth-name-reg').value.trim() || 'Anonymous';
+  const username = document.getElementById('auth-username-reg').value.trim();
+  const pass     = document.getElementById('auth-pass-reg').value;
+  if (!username || !pass) { setAuthError('Please enter username and password'); return; }
+  if (username.length < 3) { setAuthError('Username must be at least 3 characters'); return; }
+  if (pass.length < 6)     { setAuthError('Password must be at least 6 characters'); return; }
+
+  showLoading('CREATING ACCOUNT');
+  try {
+    const res = await apiPost('/register', { name, username, password: pass });
+    hideLoading();
+    if (res.error) { setAuthError(res.error); return; }
+    setAuthError('');
+    state.name    = res.name || name;
+    state._userId = res.user_id;
+    setApiStatus('connected');
+    navigateTo('screen-domain');
+  } catch(e) {
+    hideLoading();
+    setApiStatus('error');
+    setAuthError('Cannot connect to server. Please make sure the backend is running.');
+  }
+}
+
+function continueAsGuest() {
+  state.name = 'Anonymous';
+  state._userId = null;
+  state.sessionId = null;
+  navigateTo('screen-domain');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SEARCH FUNCTIONS
+   ══════════════════════════════════════════════════════════════ */
+let _searchTimeout = null;
+
+function onSearchInput(input) {
+  const val = input.value.trim();
+  const clearBtn = document.getElementById('feed-search-clear');
+  clearBtn.classList.toggle('visible', val.length > 0);
+
+  clearTimeout(_searchTimeout);
+  if (val.length === 0) {
+    renderFeed();
+    return;
+  }
+  _searchTimeout = setTimeout(() => doSearch(val), 300);
+}
+
+async function doSearch(q) {
+  try {
+    const data = await apiGet(`/search?q=${encodeURIComponent(q)}&domain=${state.domain || ''}`);
+    state.questions.expert = data.expert || [];
+    state.questions.human  = data.human  || [];
+    renderFeed();
+  } catch(e) {
+    // local search fallback
+    const allQ = state._cachedQuestions || state.questions;
+    const lower = q.toLowerCase();
+    state.questions.expert = (allQ.expert || []).filter(x => x.text.toLowerCase().includes(lower));
+    state.questions.human  = (allQ.human  || []).filter(x => x.text.toLowerCase().includes(lower));
+    renderFeed();
+  }
+}
+
+function clearSearch() {
+  document.getElementById('feed-search-input').value = '';
+  document.getElementById('feed-search-clear').classList.remove('visible');
+  // restore original questions
+  if (state._cachedQuestions) {
+    state.questions = { ...state._cachedQuestions };
+  }
+  renderFeed();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PROFILE FUNCTIONS
+   ══════════════════════════════════════════════════════════════ */
+async function openProfile(sessionId) {
+  const overlay = document.getElementById('profile-overlay');
+  document.getElementById('profile-body').innerHTML = '<div class="profile-empty">Loading profile…</div>';
+  overlay.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+
+  try {
+    const profile = await apiGet(`/profile/${sessionId}`);
+    renderProfileModal(profile);
+  } catch(e) {
+    document.getElementById('profile-body').innerHTML = '<div class="profile-empty">Could not load profile.</div>';
+  }
+}
+
+function closeProfile() {
+  document.getElementById('profile-overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+function renderProfileModal(p) {
+  const initials = (p.name || 'A').charAt(0).toUpperCase();
+  const rankLabel = RANKS[Math.min((p.rank_level || 1) - 1, RANKS.length - 1)];
+  const skills    = (p.skills || []).map(s => `<span class="profile-skill-tag">${s}</span>`).join('');
+  const certs     = (p.certificates || []).map(c => `<span class="profile-cert-badge">✓ ${c.replace('_',' ')}</span>`).join('');
+  const recentHTML = (p.recent_answers || []).length === 0
+    ? '<div class="profile-empty">No answers yet</div>'
+    : (p.recent_answers || []).map(a => `
+      <div class="profile-recent-item">
+        <div class="profile-recent-q">${a.questionText || 'Question'}</div>
+        <div class="profile-recent-meta">
+          <span class="profile-recent-pts">+${a.pts} PTS</span>
+          <span>${a.rankAfter || ''}</span>
+          <span>${a.time ? a.time.slice(0,10) : ''}</span>
+        </div>
+      </div>`).join('');
+
+  document.getElementById('profile-body').innerHTML = `
+    <div class="profile-hero">
+      <div class="profile-avatar">${initials}</div>
+      <div class="profile-hero-info">
+        <div class="profile-hero-name">${p.name || 'Anonymous'}</div>
+        <div class="profile-hero-domain">${p.domain || 'General'}</div>
+        <div class="profile-rank-badge">◈ ${rankLabel}</div>
+      </div>
+    </div>
+    <div class="profile-stats-row">
+      <div class="profile-stat-box">
+        <div class="profile-stat-val">${p.score || 0}</div>
+        <div class="profile-stat-lbl">Score</div>
+      </div>
+      <div class="profile-stat-box">
+        <div class="profile-stat-val">${p.answers || 0}</div>
+        <div class="profile-stat-lbl">Answers</div>
+      </div>
+      <div class="profile-stat-box">
+        <div class="profile-stat-val">${p.streak || 0}</div>
+        <div class="profile-stat-lbl">Streak</div>
+      </div>
+    </div>
+    ${skills ? `<div class="profile-section-title">SKILLS</div><div class="profile-skills-row">${skills}</div>` : ''}
+    ${certs  ? `<div class="profile-section-title">CERTIFICATES</div><div class="profile-certs-row">${certs}</div>` : ''}
+    <div class="profile-section-title">RECENT ACTIVITY</div>
+    <div class="profile-recent-list">${recentHTML}</div>
+  `;
+}
+
+function openMyProfile() {
+  if (state.sessionId) openProfile(state.sessionId);
+}
+
+
+async function startSession() {
+  const nameInput = document.getElementById('input-name').value.trim();
+  state.name      = nameInput || 'Anonymous';
+
+  // Generate a client-side session ID (server will store it)
+  state.sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+
+  try {
+    showLoading('INITIALIZING SESSION');
+    const user = await apiPost('/init-session', {
+      session_id: state.sessionId,
+      name:       state.name,
+    });
+    syncUserState(user);
+    setApiStatus('connected');
+  } catch (err) {
+    // Offline / server not running — continue with local state
+    console.warn('Backend unavailable, running in local mode:', err.message);
+    setApiStatus('error');
+    state.certId = 'PI-' + Math.floor(100000 + Math.random() * 900000);
+  } finally {
+    hideLoading();
+  }
+
+  navigateTo('screen-domain');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DOMAIN SELECTION
+   ══════════════════════════════════════════════════════════════ */
+function selectDomain(card) {
+  document.querySelectorAll('.domain-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  state.domain = card.dataset.domain;
+
+  const btn = document.getElementById('btn-continue-domain');
+  btn.textContent = `ENTER ${card.querySelector('.domain-name').textContent}`;
+  btn.disabled    = false;
+  btn.classList.add('ready');
+}
+
+async function confirmDomain() {
+  if (!state.domain) return;
+  document.getElementById('feed-domain-chip').textContent = state.domain.toUpperCase();
+
+  try {
+    showLoading('LOADING QUESTIONS');
+    const data = await apiGet(`/get-questions?domain=${state.domain}&tab=all&limit=8`);
+    state.questions.expert = data.expert || [];
+    state.questions.human  = data.human  || [];
+    state._cachedQuestions = { expert: [...state.questions.expert], human: [...state.questions.human] };
+
+    // Persist domain to server
+    if (state.sessionId) {
+      apiPost('/init-session', { session_id: state.sessionId, name: state.name, domain: state.domain, user_id: state._userId })
+        .catch(() => {});
+    } else {
+      // Create a fresh session
+      state.sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      apiPost('/init-session', { session_id: state.sessionId, name: state.name, domain: state.domain, user_id: state._userId })
+        .then(u => syncUserState(u)).catch(() => {});
+    }
+  } catch (err) {
+    console.warn('Could not fetch questions from API, using embedded fallback.');
+    state.questions = _localQuestions(state.domain);
+    state._cachedQuestions = { expert: [...state.questions.expert], human: [...state.questions.human] };
+  } finally {
+    hideLoading();
+  }
+
+  // Clear search
+  if (document.getElementById('feed-search-input')) {
+    document.getElementById('feed-search-input').value = '';
+    document.getElementById('feed-search-clear').classList.remove('visible');
+  }
+
+  state.currentTab = 'expert';
+  state.selectedQ  = null;
+  document.getElementById('btn-answer').disabled = true;
+  renderFeed();
+  navigateTo('screen-feed');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   QUESTION FEED
+   ══════════════════════════════════════════════════════════════ */
+function switchTab(tab) {
+  state.currentTab = tab;
+  state.selectedQ  = null;
+  document.getElementById('btn-answer').disabled = true;
+
+  document.getElementById('tab-expert').classList.toggle('active', tab === 'expert');
+  document.getElementById('tab-human').classList.toggle('active',  tab === 'human');
+  renderFeed();
+}
+
+const _timeLabelCache = {};
+function _timeLabel(id) {
+  if (!_timeLabelCache[id]) {
+    const mins  = Math.floor(Math.random() * 55) + 5;
+    const label = mins < 60 ? `${mins}m ago` : `${Math.floor(mins/60)}h ago`;
+    _timeLabelCache[id] = label;
+  }
+  return _timeLabelCache[id];
+}
+
+function renderFeed() {
+  const pool = state.questions[state.currentTab] || [];
+  const list = document.getElementById('questions-list');
+
+  if (pool.length === 0) {
+    list.innerHTML = `
+      <div style="padding:2rem;text-align:center;font-family:'DM Mono',monospace;
+                  font-size:11px;color:var(--gray);letter-spacing:0.1em;">
+        NO QUESTIONS AVAILABLE FOR THIS CATEGORY
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = pool.map(q => {
+    const isSelected = state.selectedQ && state.selectedQ.id === q.id;
+    const urgClass   = q.urgency ? 'urgency-urgent' : 'urgency-open';
+    const dotClass   = q.urgency ? 'urgency-dot'    : 'urgency-dot urgency-dot-open';
+    const urgLabel   = q.urgency ? 'URGENT' : 'OPEN';
+    const qAnswers   = answersStore[q.id] || [];
+    const answerCount = qAnswers.length;
+
+    // هل السؤال أضافه المستخدم؟ (ID كبير = timestamp)
+    const isUserQ = q.id > 1000000000000;
+
+    // بناء قائمة الإجابات
+    const answersHTML = qAnswers.length > 0 ? `
+      <div class="q-answers-list">
+        ${qAnswers.map((a, ai) => `
+          <div class="q-answer-item" data-aidx="${ai}">
+            <div class="q-answer-meta">
+              <span class="q-answer-name q-answer-author" onclick="event.stopPropagation();${a.sessionId ? `openProfile('${a.sessionId}')` : ''}">◈ ${a.name}</span>
+              <div class="q-answer-meta-right">
+                <span class="q-answer-time">${a.time}</span>
+                <button class="btn-delete-answer" title="حذف الإجابة"
+                        onclick="event.stopPropagation();deleteAnswer(${q.id},${ai},this)">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="q-answer-text">${a.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>
+          </div>`).join('')}
+      </div>` : '';
+
+    // زر حذف السؤال — فقط للأسئلة المضافة من المستخدم
+    const deleteQBtn = isUserQ ? `
+      <button class="btn-delete-question" onclick="event.stopPropagation();deleteQuestion(${q.id},this)">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+        حذف السؤال
+      </button>` : '';
+
+    // عداد الإجابات
+    const countHTML = answerCount > 0 ? `
+      <div class="q-answer-count">
+        <span class="q-answer-count-dot"></span>
+        ${answerCount} ANSWER${answerCount !== 1 ? 'S' : ''}
+      </div>` : '';
+
+    return `
+      <div class="q-card ${isSelected ? 'selected' : ''}"
+           data-qid="${q.id}"
+           role="listitem"
+           onclick="selectQ(${q.id})">
+        <div class="q-urgency ${urgClass}">
+          <span class="${dotClass}"></span>${urgLabel}
+        </div>
+        <p class="q-text">${q.text}</p>
+        <div class="q-footer">
+          <div class="q-footer-left">
+            <span class="q-tag">${q.tag}</span>
+            <span>${_timeLabel(q.id)}</span>
+          </div>
+          <button class="btn-shuffle"
+                  title="Show another"
+                  onclick="shuffleQuestion(event, ${q.id})">⟳</button>
+        </div>
+        ${countHTML}
+        ${answersHTML}
+        <button class="btn-answer-inline"
+                onclick="event.stopPropagation(); openInlineCompose(${q.id}, this)">
+          + اكتب إجابة
+        </button>
+        <div class="inline-compose" onclick="event.stopPropagation()">
+          <textarea class="inline-compose-textarea"
+                    placeholder="اكتب إجابتك هنا…"
+                    rows="4"
+                    oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,300)+'px'"></textarea>
+          <div class="inline-compose-footer">
+            <button class="btn-inline-cancel" onclick="cancelInlineCompose(this)">إلغاء</button>
+            <button class="btn-inline-submit"
+                    onclick="submitInlineAnswer(${q.id}, this)">نشر ←</button>
+          </div>
+        </div>
+        ${deleteQBtn}
+      </div>`;
+  }).join('');
+}
+
+function selectQ(id) {
+  const pool = [...(state.questions.expert || []), ...(state.questions.human || [])];
+  state.selectedQ = pool.find(q => q.id === id);
+  document.getElementById('btn-answer').disabled = !state.selectedQ;
+  renderFeed();
+}
+
+async function shuffleQuestion(event, originalId) {
+  event.stopPropagation();
+  const tab = state.currentTab;
+
+  try {
+    const exclude = state.questions[tab].map(q => q.id).join(',');
+    const q = await apiGet(
+      `/get-question?domain=${state.domain}&tab=${tab}&exclude=${exclude},${originalId}`
+    );
+    const idx = state.questions[tab].findIndex(x => x.id === originalId);
+    if (idx !== -1) state.questions[tab][idx] = q;
+  } catch {
+    // Fallback: just cycle within the current pool
+    const pool = state.questions[tab];
+    const idx  = pool.findIndex(x => x.id === originalId);
+    if (idx !== -1 && pool.length > 1) {
+      const next = (idx + 1) % pool.length;
+      [pool[idx], pool[next]] = [pool[next], pool[idx]];
+    }
+  }
+
+  if (state.selectedQ?.id === originalId) {
+    state.selectedQ = null;
+    document.getElementById('btn-answer').disabled = true;
+  }
+  renderFeed();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANSWER SCREEN
+   ══════════════════════════════════════════════════════════════ */
+function openAnswer() {
+  if (!state.selectedQ) return;
+
+  document.getElementById('answer-domain-tag').textContent = state.selectedQ.tag;
+  document.getElementById('answer-question-text').textContent = state.selectedQ.text;
+
+  const ta = document.getElementById('answer-textarea');
+  ta.value = '';
+  ta.style.height = '';
+
+  document.getElementById('char-count').textContent = '0 chars · type to unlock';
+  document.getElementById('char-count').classList.remove('ready');
+  document.getElementById('btn-submit').disabled = true;
+  document.getElementById('btn-submit').classList.remove('active');
+  document.getElementById('typing-progress-fill').style.width = '0%';
+
+  navigateTo('screen-answer');
+}
+
+const ANSWER_FULL_CHARS = 200;
+
+function onAnswerInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 400) + 'px';
+
+  const len   = el.value.trim().length;
+  const ready = len > 0;
+
+  const countEl = document.getElementById('char-count');
+  countEl.textContent = ready ? `${len} chars · ready` : '0 chars · type to unlock';
+  countEl.classList.toggle('ready', ready);
+
+  const btnSubmit = document.getElementById('btn-submit');
+  btnSubmit.disabled = !ready;
+  btnSubmit.classList.toggle('active', ready);
+
+  document.getElementById('typing-progress-fill').style.width =
+    Math.min(len / ANSWER_FULL_CHARS, 1) * 100 + '%';
+
+  updateXPBar();
+}
+
+async function submitAnswer() {
+  const answerText = document.getElementById('answer-textarea').value.trim();
+  if (!answerText) return;
+
+  const q = state.selectedQ;
+  if (!q) return;
+
+  // حفظ الإجابة محلياً
+  _storeAnswer(q.id, answerText);
+
+  // تحديث النقاط
+  if (!state.seenIds) state.seenIds = [];
+  state.seenIds.push(q.id);
+  state.answers++;
+  state.rankLevel = Math.min(state.answers, RANKS.length);
+  state.lastPts   = 10 + Math.min(Math.floor(answerText.length / 20), 20);
+  state.score    += state.lastPts;
+  state.prevRank  = RANKS[Math.max(state.rankLevel - 2, 0)] || RANKS[0];
+  state.newRank   = RANKS[Math.min(state.rankLevel - 1, RANKS.length - 1)];
+
+  // Update streak and activity history
+  state.streak++;
+  state.activityHistory.unshift({
+    action: 'ANSWERED',
+    target: q.text.substring(0, 40) + '…',
+    pts: state.lastPts,
+    time: _nowLabel(),
+    rankUp: state.newRank !== state.prevRank
+  });
+
+  const rankEl = document.getElementById('rank-display');
+  if (rankEl) rankEl.textContent = state.newRank;
+  updateXPBar();
+
+  // مهارات
+  const allSkills = SKILL_KEYWORDS[state.domain] || SKILL_KEYWORDS['Code'] || ['EXPERT'];
+  if (!state._skills) state._skills = [];
+  const newSkill = allSkills[Math.floor(Math.random() * allSkills.length)];
+  if (!state._skills.includes(newSkill)) state._skills.push(newSkill);
+
+  // الرجوع لقائمة الأسئلة مباشرة وعرض الإجابة تحت السؤال
+  navigateTo('screen-feed');
+  renderFeed();
+
+  // scroll للسؤال الذي أجاب عليه
+  setTimeout(() => {
+    const card = document.querySelector(`.q-card[data-qid="${q.id}"]`);
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 200);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RANK UP SCREEN
+   ══════════════════════════════════════════════════════════════ */
+function _animateRankScreen() {
+  const heading  = document.getElementById('rank-up-heading');
+  const sub      = document.getElementById('rank-up-sub');
+  const meter    = document.getElementById('rank-meter');
+  const actions  = document.getElementById('rank-actions');
+  const ptsFlash = document.getElementById('rank-pts-flash');
+
+  [heading, sub, meter, actions, ptsFlash].forEach(el => el.classList.remove('show'));
+  document.getElementById('rank-bar-fill').style.width = '0%';
+
+  document.querySelectorAll('.rank-ring').forEach(r => {
+    r.classList.remove('animate');
+    void r.offsetWidth;
+    r.classList.add('animate');
+  });
+
+  ptsFlash.textContent = `+${state.lastPts} PTS`;
+
+  setTimeout(() => {
+    heading.classList.add('show');
+    ptsFlash.classList.add('show');
+    sub.classList.add('show');
+    meter.classList.add('show');
+    actions.classList.add('show');
+    setTimeout(() => {
+      document.getElementById('rank-bar-fill').style.width =
+        Math.min(state.answers * 15, 100) + '%';
+    }, 150);
+  }, 80);
+}
+
+function goNextQuestion() {
+  navigateTo('screen-feed');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CERTIFICATE
+   ══════════════════════════════════════════════════════════════ */
+async function openCertificate() {
+  await renderCert();
+  navigateTo('screen-cert');
+}
+
+async function renderCert() {
+  let user = {
+    name:            state.name,
+    domain:          state.domain,
+    score:           state.score,
+    answers:         state.answers,
+    rank_level:      state.rankLevel,
+    rank:            RANKS[Math.min(state.rankLevel - 1, RANKS.length - 1)],
+    cert_id:         state.certId,
+    top_tag:         state.topTag,
+    authority_title: 'Contributor',
+    domain_mastery:  [],
+    verify_hash:     '—',
+    verify_url:      'prove-it.app/verify/—',
+    issued_at:       new Date().toISOString(),
+  };
+  let certProgress = Math.min(state.answers * 15, 100);
+
+  try {
+    if (state.sessionId) {
+      showLoading('GENERATING CERTIFICATE');
+      const data = await apiGet(`/get-certificate-data/${state.sessionId}`);
+      user         = { ...user, ...data };
+      certProgress = data.cert_progress || certProgress;
+    }
+  } catch {
+    // fallback to local data
+  } finally {
+    hideLoading();
+  }
+
+  // User name (big)
+  const nameEl = document.getElementById('cert-user-name');
+  nameEl.textContent = (user.name && user.name !== 'Anonymous') ? user.name.toUpperCase() : 'ANONYMOUS';
+
+  // Authority title
+  document.getElementById('cert-authority-title').textContent = (user.authority_title || 'Contributor').toUpperCase();
+
+  // Domain / Rank / Date row
+  document.getElementById('cert-domain-name').textContent = (user.domain || state.domain || 'GENERAL').toUpperCase();
+  document.getElementById('cert-rank-label').textContent  = user.rank || RANKS[Math.min((user.rank_level||1)-1, RANKS.length-1)];
+  const issuedDate = user.issued_at ? user.issued_at.slice(0, 10) : new Date().toISOString().slice(0, 10);
+  document.getElementById('cert-issued-date').textContent = issuedDate;
+
+  // Stats
+  document.getElementById('cert-answers').textContent  = user.answers  || state.answers;
+  document.getElementById('cert-rank-num').textContent = user.rank_level || state.rankLevel;
+  document.getElementById('cert-score').textContent    = user.score     || state.score;
+
+  // Cert ID + verify
+  document.getElementById('cert-id').textContent          = 'ID: ' + (user.cert_id || state.certId || 'PI-000000');
+  document.getElementById('cert-verify-url').textContent  = user.verify_url || 'prove-it.app/verify/—';
+  document.getElementById('cert-verify-hash').textContent = user.verify_hash || '—';
+
+  // Progress bar
+  document.getElementById('cert-rank-fill').style.width = certProgress + '%';
+
+  // Top tag badge
+  const topTagEl = document.getElementById('cert-top-tag');
+  const topTag   = user.top_tag || state.topTag;
+  if (topTag) {
+    topTagEl.textContent = `◆ ${topTag}`;
+    topTagEl.style.display = 'inline-block';
+  } else {
+    topTagEl.style.display = 'none';
+  }
+
+  // Skills grid
+  const skillsEl = document.getElementById('cert-skills');
+  const domain   = state.domain || user.domain || 'General';
+  const allSlots = SKILL_KEYWORDS[domain] || SKILL_KEYWORDS['Code'];
+  const earned   = (user.skills && user.skills.length) ? user.skills : (state._skills || []);
+  skillsEl.innerHTML = allSlots.map(s => {
+    const unlocked = earned.includes(s);
+    return `<span class="cert-skill-tag ${unlocked ? '' : 'empty'}">${unlocked ? s : '???'}</span>`;
+  }).join('');
+
+  // Domain mastery bars
+  const masterySection = document.getElementById('cert-mastery-section');
+  const masteryBars    = document.getElementById('cert-mastery-bars');
+  const mastery = user.domain_mastery || [];
+  if (mastery.length > 0) {
+    masterySection.style.display = '';
+    masteryBars.innerHTML = mastery.map(m => `
+      <div class="cert-mastery-item">
+        <div class="cert-mastery-label-row">
+          <span>${(m.domain || 'General').toUpperCase()}</span>
+          <span class="cert-mastery-pct">${m.pct}%</span>
+        </div>
+        <div class="cert-mastery-bar-bg">
+          <div class="cert-mastery-bar-fill" style="width:${m.pct}%"></div>
+        </div>
+      </div>`).join('');
+  } else {
+    masterySection.style.display = 'none';
+  }
+
+  // Unlock note
+  const remaining = Math.max(3 - (user.answers || state.answers), 0);
+  const noteEl    = document.getElementById('cert-unlock-note');
+  noteEl.textContent = remaining > 0
+    ? `Answer ${remaining} more question${remaining !== 1 ? 's' : ''} to fully unlock this certificate.`
+    : '✓ Certificate active — share your verified proof of impact.';
+}
+
+function printCert() {
+  window.print();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   XP BAR
+   ══════════════════════════════════════════════════════════════ */
+function updateXPBar() {
+  const progress = Math.min((state.answers / RANKS.length) * 100, 100);
+  document.getElementById('xp-bar-fill').style.width = progress + '%';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   EXIT OVERLAY
+   ══════════════════════════════════════════════════════════════ */
+function showExit()  { document.getElementById('exit-overlay').classList.add('visible'); }
+function closeExit() { document.getElementById('exit-overlay').classList.remove('visible'); }
+
+/* ══════════════════════════════════════════════════════════════
+   SHARE
+   ══════════════════════════════════════════════════════════════ */
+function shareCert() {
+  const id      = state.certId || 'PI-000000';
+  const rank    = RANKS[Math.min(state.rankLevel - 1, RANKS.length - 1)];
+  const domain  = state.domain || 'General';
+  const verifyEl = document.getElementById('cert-verify-url');
+  const url     = verifyEl ? verifyEl.textContent : `prove-it.app/verify/${id}`;
+  const msg     = `I just earned my PROVE IT Authority Record — ${rank} rank in ${domain}.\n${state.answers} questions answered. Impact Score: ${state.score}.\nVerify: https://${url}\nID: ${id}`;
+  if (navigator.share) {
+    navigator.share({ title: 'PROVE IT — Authority Record', text: msg }).catch(() => {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(msg)
+      .then(() => alert('Copied to clipboard!'))
+      .catch(() => prompt('Copy this:', msg));
+  } else {
+    prompt('Copy this:', msg);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LOCAL QUESTION FALLBACK  (used when API is offline)
+   ══════════════════════════════════════════════════════════════ */
+function _localQuestions(domain) {
+  const domainQs = {
+    Programming: {
+      expert: [
+        { id:1, text:"ما الفرق بين let و const و var في JavaScript؟", tag:"PROGRAMMING", urgency:false },
+        { id:2, text:"كيف تشرح مفهوم الـ API لشخص غير تقني؟", tag:"PROGRAMMING", urgency:false },
+        { id:3, text:"ما هو الفرق بين Frontend و Backend؟", tag:"PROGRAMMING", urgency:false },
+        { id:4, text:"ما معنى مفهوم الـ Git وكيف تستخدمه في مشاريعك؟", tag:"PROGRAMMING", urgency:true },
+        { id:5, text:"ما الفرق بين الـ Array والـ Object في البرمجة؟", tag:"PROGRAMMING", urgency:false },
+        { id:6, text:"كيف تختار بين Python و JavaScript لمشروع جديد؟", tag:"PROGRAMMING", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تعلّمت البرمجة وما هو أفضل مصدر بدأت منه؟", tag:"CAREER", urgency:false },
+        { id:102, text:"كيف تتغلب على الإحباط حين يتوقف الكود عن العمل ولا تعرف السبب؟", tag:"MINDSET", urgency:true },
+        { id:103, text:"هل تفضّل العمل مستقلاً أم في فريق؟ ولماذا؟", tag:"CAREER", urgency:false },
+      ]
+    },
+    Security: {
+      expert: [
+        { id:1, text:"ما هو الفرق بين Virus و Trojan و Malware؟", tag:"SECURITY", urgency:false },
+        { id:2, text:"لماذا كلمة المرور الطويلة أقوى من المعقدة القصيرة؟", tag:"SECURITY", urgency:false },
+        { id:3, text:"ما هو الـ VPN ومتى يجب استخدامه؟", tag:"SECURITY", urgency:false },
+        { id:4, text:"كيف تعرف إذا كان إيميلك قد سُرب في اختراق بيانات؟", tag:"SECURITY", urgency:true },
+        { id:5, text:"ما الفرق بين HTTP و HTTPS وأيهما أأمن؟", tag:"SECURITY", urgency:false },
+        { id:6, text:"ما هو الـ Two-Factor Authentication وكيف يحمي حساباتك؟", tag:"SECURITY", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تشرح مفهوم الأمن السيبراني لشخص لا يعرف شيئاً عن التقنية؟", tag:"AWARENESS", urgency:false },
+        { id:102, text:"هل تشعر بالقلق من خصوصيتك على الإنترنت؟ ماذا تفعل حيال ذلك؟", tag:"MINDSET", urgency:false },
+      ]
+    },
+    AI: {
+      expert: [
+        { id:1, text:"ما الفرق بين الذكاء الاصطناعي والتعلم الآلي والتعلم العميق؟", tag:"AI", urgency:false },
+        { id:2, text:"كيف يعمل ChatGPT بشكل مبسّط؟", tag:"AI", urgency:false },
+        { id:3, text:"ما هو الـ Prompt Engineering ولماذا أصبح مهماً؟", tag:"AI", urgency:false },
+        { id:4, text:"هل يمكن للذكاء الاصطناعي أن يحل محل البشر في وظيفتك؟", tag:"AI", urgency:true },
+        { id:5, text:"ما هو الفرق بين النماذج المفتوحة المصدر والنماذج المدفوعة في الذكاء الاصطناعي؟", tag:"AI", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تستخدم الذكاء الاصطناعي في حياتك اليومية أو عملك؟", tag:"LIFESTYLE", urgency:false },
+        { id:102, text:"ما أكثر شيء يقلقك في مستقبل الذكاء الاصطناعي؟", tag:"MINDSET", urgency:false },
+      ]
+    },
+    Sysadmin: {
+      expert: [
+        { id:1, text:"ما الفرق بين الـ Cloud Server والـ Dedicated Server؟", tag:"SYSADMIN", urgency:false },
+        { id:2, text:"لماذا تُعتبر النسخ الاحتياطية من أهم مهام مدير الأنظمة؟", tag:"SYSADMIN", urgency:true },
+        { id:3, text:"ما هو الـ Linux وما الفرق بين توزيعاته الشائعة؟", tag:"SYSADMIN", urgency:false },
+        { id:4, text:"كيف تشرح مفهوم الـ DNS لشخص غير تقني؟", tag:"SYSADMIN", urgency:false },
+        { id:5, text:"ما هي أولى الخطوات عند تسلّم سيرفر جديد؟", tag:"SYSADMIN", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع ضغط العمل عندما يسقط سيرفر في منتصف الليل؟", tag:"MINDSET", urgency:true },
+        { id:102, text:"ما أصعب موقف تقني مررت به وكيف تجاوزته؟", tag:"CAREER", urgency:false },
+      ]
+    },
+    Gaming: {
+      expert: [
+        { id:1, text:"ما الفرق بين الـ FPS والـ RPG والـ RTS من حيث طريقة اللعب؟", tag:"GAMING", urgency:false },
+        { id:2, text:"كيف تحسّن أداءك في الألعاب التنافسية أونلاين؟", tag:"GAMING", urgency:false },
+        { id:3, text:"ما هي مواصفات الكمبيوتر الجيدة لألعاب 2024؟", tag:"GAMING", urgency:false },
+        { id:4, text:"ما الفرق بين الـ 60fps والـ 144fps في تجربة اللعب؟", tag:"GAMING", urgency:false },
+        { id:5, text:"كيف تبدأ في تطوير لعبة بسيطة للمرة الأولى؟", tag:"GAME DEV", urgency:true },
+      ],
+      human: [
+        { id:101, text:"كيف توازن بين الألعاب والدراسة أو العمل؟", tag:"MINDSET", urgency:false },
+        { id:102, text:"ما أفضل لعبة لعبتها في حياتك وماذا علّمتك؟", tag:"LIFESTYLE", urgency:false },
+      ]
+    },
+    Repair: {
+      expert: [
+        { id:1, text:"كيف تعرف إذا كانت مشكلة الجوال في البطارية أم في البورد؟", tag:"REPAIR", urgency:true },
+        { id:2, text:"ما هي أدوات الصيانة الأساسية التي يجب أن يملكها كل فني؟", tag:"REPAIR", urgency:false },
+        { id:3, text:"كيف تتعامل مع جوال مبلّل بالماء؟ ما الخطوات الأولى؟", tag:"REPAIR", urgency:true },
+        { id:4, text:"ما الفرق بين تغيير الشاشة في الجوال بنفسك أو في مركز خدمة؟", tag:"REPAIR", urgency:false },
+        { id:5, text:"كيف تشخّص مشكلة شحن الجوال هل في الكيبل أم البطارية أم المنفذ؟", tag:"REPAIR", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تعلّمت الصيانة وما أول جهاز فتحته؟", tag:"CAREER", urgency:false },
+        { id:102, text:"كيف تتعامل مع زبون يدّعي أن الجهاز كان شغّالاً قبل ما يجيبه لك؟", tag:"INFLUENCE", urgency:false },
+      ]
+    },
+    Finance: {
+      expert: [
+        { id:1, text:"ما الفرق بين الأسهم والصناديق الاستثمارية ETF للمبتدئ؟", tag:"FINANCE", urgency:false },
+        { id:2, text:"كيف تبدأ في الاستثمار براتب محدود؟", tag:"FINANCE", urgency:false },
+        { id:3, text:"ما هو مفهوم الـ Compound Interest وكيف يغيّر حياتك المالية؟", tag:"FINANCE", urgency:false },
+        { id:4, text:"متى يكون الذهب خياراً أفضل من الأسهم؟", tag:"FINANCE", urgency:false },
+        { id:5, text:"كيف تقرأ الأخبار الاقتصادية وتفهم أثرها على السوق؟", tag:"FINANCE", urgency:true },
+      ],
+      human: [
+        { id:101, text:"ما أكبر خطأ مالي ارتكبته وماذا تعلّمت منه؟", tag:"MINDSET", urgency:false },
+        { id:102, text:"كيف تتحدث عن المال مع شريكك أو عائلتك دون توتر؟", tag:"LIFESTYLE", urgency:false },
+      ]
+    },
+    Accounting: {
+      expert: [
+        { id:1, text:"ما الفرق بين الإيراد والربح وكيف يُحسب كلٌّ منهما؟", tag:"ACCOUNTING", urgency:false },
+        { id:2, text:"لماذا يحتاج أي مشروع صغير لمحاسب منذ البداية؟", tag:"ACCOUNTING", urgency:false },
+        { id:3, text:"ما هو الفرق بين الضريبة على الدخل وضريبة القيمة المضافة؟", tag:"ACCOUNTING", urgency:false },
+        { id:4, text:"كيف تقرأ الميزانية العمومية لشركة؟", tag:"ACCOUNTING", urgency:true },
+        { id:5, text:"ما هي برامج المحاسبة الأكثر استخداماً للشركات الصغيرة؟", tag:"ACCOUNTING", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تشرح لصاحب مشروع صغير لماذا يحتاج محاسباً وليس فقط إكسيل؟", tag:"INFLUENCE", urgency:false },
+        { id:102, text:"ما أصعب موقف مررت فيه بضغط ضريبي أو مالي وكيف تجاوزته؟", tag:"CAREER", urgency:false },
+      ]
+    },
+    Ecommerce: {
+      expert: [
+        { id:1, text:"كيف تختار منتجاً ناجحاً للبيع أونلاين في 2024؟", tag:"ECOMMERCE", urgency:false },
+        { id:2, text:"ما الفرق بين الدروبشيبينق وامتلاك مخزون حقيقي؟", tag:"ECOMMERCE", urgency:false },
+        { id:3, text:"لماذا تفشل معظم المتاجر الإلكترونية في الشهر الأول؟", tag:"ECOMMERCE", urgency:true },
+        { id:4, text:"كيف تكتب وصف منتج يجعل الناس يشترون فوراً؟", tag:"ECOMMERCE", urgency:false },
+        { id:5, text:"ما هو أفضل منصة للبيع أونلاين للمبتدئ: Shopify أم Salla أم غيرها؟", tag:"ECOMMERCE", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتحمّل الفشل حين لا تُباع منتجاتك رغم جهدك؟", tag:"MINDSET", urgency:true },
+        { id:102, text:"هل تعمل وحيداً أم مع شريك في التجارة الإلكترونية؟ ما رأيك؟", tag:"CAREER", urgency:false },
+      ]
+    },
+    RealEstate: {
+      expert: [
+        { id:1, text:"كيف تحدد السعر العادل لعقار قبل الشراء؟", tag:"REAL ESTATE", urgency:false },
+        { id:2, text:"ما الفرق بين عقار للسكن وعقار للاستثمار؟", tag:"REAL ESTATE", urgency:false },
+        { id:3, text:"ما هي أهم الأوراق والمستندات عند شراء عقار؟", tag:"REAL ESTATE", urgency:true },
+        { id:4, text:"كيف تتفاوض مع البائع لتحصل على أفضل سعر؟", tag:"REAL ESTATE", urgency:false },
+        { id:5, text:"هل الإيجار أفضل من الشراء حالياً؟ كيف تتخذ القرار؟", tag:"REAL ESTATE", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع مستأجر يتأخر في الدفع؟", tag:"INFLUENCE", urgency:true },
+        { id:102, text:"ما أكبر صفقة عقارية تعلّمت منها شيئاً؟", tag:"CAREER", urgency:false },
+      ]
+    },
+    Marketing: {
+      expert: [
+        { id:1, text:"ما الفرق بين الإعلان المدفوع والمحتوى العضوي؟ متى تستخدم كلاً منهما؟", tag:"MARKETING", urgency:false },
+        { id:2, text:"كيف تكتب إعلاناً على سناب أو تيك توك يجذب الانتباه في الثانية الأولى؟", tag:"MARKETING", urgency:false },
+        { id:3, text:"ما هو مفهوم الـ Target Audience وكيف تحدده لمنتجك؟", tag:"MARKETING", urgency:false },
+        { id:4, text:"لماذا يفشل كثير من الإعلانات رغم الميزانية العالية؟", tag:"MARKETING", urgency:true },
+        { id:5, text:"كيف تقيس نجاح حملة إعلانية؟ ما المقاييس المهمة؟", tag:"MARKETING", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع عميل يريد نتائج فورية من التسويق الرقمي؟", tag:"INFLUENCE", urgency:false },
+        { id:102, text:"ما أكثر حملة إعلانية أثّرت فيك شخصياً؟ ولماذا؟", tag:"MINDSET", urgency:false },
+      ]
+    },
+    Law: {
+      expert: [
+        { id:1, text:"ما الفرق بين العقد الشفهي والمكتوب أمام القانون؟", tag:"LAW", urgency:false },
+        { id:2, text:"متى يحق لك فسخ عقد عمل دون عواقب قانونية؟", tag:"LAW", urgency:true },
+        { id:3, text:"ما هي حقوق المستهلك الأساسية عند شراء منتج معيب؟", tag:"LAW", urgency:false },
+        { id:4, text:"كيف تحمي فكرتك التجارية قانونياً قبل طرحها في السوق؟", tag:"LAW", urgency:false },
+        { id:5, text:"ما الخطوات القانونية لتأسيس شركة صغيرة في السعودية؟", tag:"LAW", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تشرح للناس البسيطين حقوقهم دون مصطلحات قانونية معقدة؟", tag:"INFLUENCE", urgency:false },
+        { id:102, text:"ما أصعب قضية شاركت فيها وماذا تعلّمت؟", tag:"CAREER", urgency:false },
+      ]
+    },
+    Medicine: {
+      expert: [
+        { id:1, text:"متى يجب الذهاب للطوارئ مقابل انتظار موعد الطبيب؟", tag:"MEDICINE", urgency:true },
+        { id:2, text:"ما الفرق بين الفيروس والبكتيريا وأيهما يستجيب للمضادات الحيوية؟", tag:"MEDICINE", urgency:false },
+        { id:3, text:"لماذا يختلف الأطباء أحياناً في تشخيص نفس الحالة؟", tag:"MEDICINE", urgency:false },
+        { id:4, text:"كيف تقرأ نتائج تحليل الدم وتفهم الأرقام الطبيعية؟", tag:"MEDICINE", urgency:false },
+        { id:5, text:"ما أعراض الجلطة الدماغية وكيف تتصرف في أول 3 دقائق؟", tag:"MEDICINE", urgency:true },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع مريض يرفض الاستماع للنصيحة الطبية؟", tag:"INFLUENCE", urgency:false },
+        { id:102, text:"كيف تحافظ على صحتك النفسية وأنت تعمل في المجال الطبي؟", tag:"MINDSET", urgency:false },
+      ]
+    },
+    Fitness: {
+      expert: [
+        { id:1, text:"هل البروتين مهم دائماً أم فقط لمن يمارس الرياضة بشكل مكثف؟", tag:"FITNESS", urgency:false },
+        { id:2, text:"ما الفرق بين التمرين على معدة فارغة أم بعد الأكل؟", tag:"FITNESS", urgency:false },
+        { id:3, text:"كم ساعة نوم يحتاجها الجسم لبناء العضلات فعلياً؟", tag:"FITNESS", urgency:false },
+        { id:4, text:"هل ممكن تخسر الدهون وتبني عضلات في نفس الوقت؟", tag:"FITNESS", urgency:true },
+        { id:5, text:"ما هي أهم 3 تمارين لو ما عندك إلا 20 دقيقة في اليوم؟", tag:"FITNESS", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تحافظ على الاستمرار في التمرين حين تفقد الدافع؟", tag:"MINDSET", urgency:true },
+        { id:102, text:"كيف تتعامل مع أشخاص يسخرون من هدفك الرياضي؟", tag:"INFLUENCE", urgency:false },
+      ]
+    },
+    Psychology: {
+      expert: [
+        { id:1, text:"ما الفرق بين القلق الطبيعي والاضطراب النفسي الحقيقي؟", tag:"PSYCHOLOGY", urgency:false },
+        { id:2, text:"كيف يؤثر النوم على الصحة النفسية فعلياً؟", tag:"PSYCHOLOGY", urgency:false },
+        { id:3, text:"لماذا يعود الناس للعادات السيئة حتى بعد التوقف عنها؟", tag:"PSYCHOLOGY", urgency:true },
+        { id:4, text:"ما هو مفهوم الـ Cognitive Bias وكيف يؤثر على قراراتنا اليومية؟", tag:"PSYCHOLOGY", urgency:false },
+        { id:5, text:"كيف تساعد شخصاً قريباً يمر باكتئاب دون أن تؤذيه بكلامك؟", tag:"PSYCHOLOGY", urgency:true },
+      ],
+      human: [
+        { id:101, text:"كيف تحدد الحدود النفسية مع الناس دون أن تبدو بارداً؟", tag:"MINDSET", urgency:false },
+        { id:102, text:"هل مررت بتجربة أثّرت في نظرتك للحياة وغيّرتك؟", tag:"CLARITY", urgency:false },
+      ]
+    },
+    Engineering: {
+      expert: [
+        { id:1, text:"كيف تشرح مفهوم الجسر المعلّق للشخص الذي يسألك لماذا لا يسقط؟", tag:"ENGINEERING", urgency:false },
+        { id:2, text:"ما الفرق بين الهندسة الكهربائية والميكانيكية والمدنية؟", tag:"ENGINEERING", urgency:false },
+        { id:3, text:"ما هي أهم المهارات غير التقنية التي يحتاجها المهندس؟", tag:"ENGINEERING", urgency:false },
+        { id:4, text:"كيف تتعامل مع خطأ في التصميم اكتشفته بعد البناء؟", tag:"ENGINEERING", urgency:true },
+        { id:5, text:"ما الفرق بين الـ BIM والرسم الهندسي التقليدي؟", tag:"ENGINEERING", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع مقاول يتجاهل مواصفاتك الهندسية؟", tag:"INFLUENCE", urgency:true },
+        { id:102, text:"ما أجمل مشروع هندسي شاركت فيه وماذا تعلّمت؟", tag:"CAREER", urgency:false },
+      ]
+    },
+    Design: {
+      expert: [
+        { id:1, text:"ما هي قاعدة المساحة البيضاء وكيف تستخدمها في تصميماتك؟", tag:"DESIGN", urgency:false },
+        { id:2, text:"كيف تختار مجموعة ألوان متناسقة لمشروع تجاري؟", tag:"DESIGN", urgency:false },
+        { id:3, text:"ما الفرق بين الـ Logo والـ Brand Identity؟", tag:"DESIGN", urgency:false },
+        { id:4, text:"متى تستخدم Figma ومتى تستخدم Photoshop أو Illustrator؟", tag:"DESIGN", urgency:false },
+        { id:5, text:"كيف تتعامل مع عميل يريد 'كل شيء كبير وملوّن وفاخر'؟", tag:"DESIGN", urgency:true },
+      ],
+      human: [
+        { id:101, text:"كيف تقبل النقد على تصميمك دون أن تشعر بأنه هجوم شخصي؟", tag:"MINDSET", urgency:false },
+        { id:102, text:"ما أول تصميم احترافي صنعته وكيف تشعر تجاهه الآن؟", tag:"CAREER", urgency:false },
+      ]
+    },
+    Photography: {
+      expert: [
+        { id:1, text:"ما الفرق بين الـ Aperture والـ Shutter Speed والـ ISO؟", tag:"PHOTOGRAPHY", urgency:false },
+        { id:2, text:"كيف تصوّر في الإضاءة المنخفضة دون ضوضاء في الصورة؟", tag:"PHOTOGRAPHY", urgency:false },
+        { id:3, text:"متى تستخدم الكاميرا الاحترافية ومتى يكفي الجوال للتصوير؟", tag:"PHOTOGRAPHY", urgency:false },
+        { id:4, text:"ما هي قاعدة الأثلاث في التصوير وكيف تطبّقها؟", tag:"PHOTOGRAPHY", urgency:false },
+        { id:5, text:"كيف تبني محتوى فيديو منتظماً دون أن تنهك نفسك؟", tag:"CONTENT", urgency:true },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع ضغط نشر محتوى يومي وتقليد ما يعمله غيرك؟", tag:"MINDSET", urgency:true },
+        { id:102, text:"ما اللحظة التي قرّرت فيها أن التصوير سيكون جزءاً من حياتك؟", tag:"CAREER", urgency:false },
+      ]
+    },
+    Education: {
+      expert: [
+        { id:1, text:"ما الفرق بين التعليم التقليدي والتعليم الإلكتروني من حيث الفاعلية؟", tag:"EDUCATION", urgency:false },
+        { id:2, text:"كيف تشرح مفهوماً صعباً لطالب لا يستوعبه؟", tag:"EDUCATION", urgency:false },
+        { id:3, text:"ما أفضل تقنيات الحفظ والاستيعاب التي تنصح بها؟", tag:"EDUCATION", urgency:false },
+        { id:4, text:"كيف تصمم كورساً إلكترونياً ناجحاً من الصفر؟", tag:"EDUCATION", urgency:true },
+        { id:5, text:"ما هي أفضل المنصات لبيع الكورسات التعليمية العربية؟", tag:"EDUCATION", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع طالب كسول لا يهتم بالتعلم؟", tag:"INFLUENCE", urgency:false },
+        { id:102, text:"ما المعلم الأكثر تأثيراً في حياتك وما الذي جعله مميزاً؟", tag:"GROWTH", urgency:false },
+      ]
+    },
+    Writing: {
+      expert: [
+        { id:1, text:"ما الفرق بين الكتابة الإبداعية والكتابة التسويقية؟", tag:"WRITING", urgency:false },
+        { id:2, text:"كيف تتغلب على حالة الفراغ الفكري حين لا تعرف ماذا تكتب؟", tag:"WRITING", urgency:true },
+        { id:3, text:"ما أدوات الذكاء الاصطناعي المفيدة للكاتب العربي؟", tag:"WRITING", urgency:false },
+        { id:4, text:"كيف تكتب عنواناً يجعل القارئ يضغط على مقالتك؟", tag:"WRITING", urgency:false },
+        { id:5, text:"ما الفرق بين الترجمة الحرفية والترجمة الإبداعية؟", tag:"WRITING", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع الانتقادات القاسية على كتاباتك؟", tag:"MINDSET", urgency:false },
+        { id:102, text:"ما الكتاب الذي أثّر فيك أكثر من غيره؟ ولماذا؟", tag:"GROWTH", urgency:false },
+      ]
+    },
+    Cars: {
+      expert: [
+        { id:1, text:"كيف تعرف أن سيارتك تحتاج تغيير زيت قبل موعد الصيانة؟", tag:"CARS", urgency:false },
+        { id:2, text:"ما الفرق بين الإطار الصيفي والشتوي وأيهما أناسب في السعودية؟", tag:"CARS", urgency:false },
+        { id:3, text:"كيف تتفاوض على سعر سيارة مستعملة دون أن تُخدع؟", tag:"CARS", urgency:true },
+        { id:4, text:"ما هي أعراض انتهاء عمر البطارية في السيارة؟", tag:"CARS", urgency:false },
+        { id:5, text:"هل الكهربائية أفضل من البنزين في السعودية الآن؟ ما رأيك؟", tag:"CARS", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع ورشة تحاول تضخيم فاتورة الصيانة؟", tag:"INFLUENCE", urgency:true },
+        { id:102, text:"ما أول سيارة قدتها وكيف كانت التجربة؟", tag:"LIFESTYLE", urgency:false },
+      ]
+    },
+    Aviation: {
+      expert: [
+        { id:1, text:"كيف تعمل أجهزة الملاحة في الطائرة بشكل مبسّط؟", tag:"AVIATION", urgency:false },
+        { id:2, text:"ما الفرق بين الطيار الأول والمساعد في رحلة تجارية؟", tag:"AVIATION", urgency:false },
+        { id:3, text:"لماذا تتأخر الرحلات أحياناً بسبب الطقس حتى لو السماء صافية؟", tag:"AVIATION", urgency:false },
+        { id:4, text:"ما هي متطلبات الحصول على رخصة طيار خاص PPL؟", tag:"AVIATION", urgency:true },
+        { id:5, text:"ما الفرق بين المطار الإقليمي والدولي من الناحية التشغيلية؟", tag:"AVIATION", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع الخوف من الطيران؟ هل لديك نصيحة عملية؟", tag:"MINDSET", urgency:false },
+        { id:102, text:"ما أجمل رحلة طيران مررت بها وما الذي جعلها مميزة؟", tag:"LIFESTYLE", urgency:false },
+      ]
+    },
+    Cooking: {
+      expert: [
+        { id:1, text:"ما سر الفرق بين الأرز اللي يطلع كبسة وبين الأرز اللي يطلع عجين؟", tag:"COOKING", urgency:false },
+        { id:2, text:"كيف تحافظ على اللحم طرياً عند الطبخ؟", tag:"COOKING", urgency:false },
+        { id:3, text:"ما الفرق بين الـ Sauté والـ Stir Fry في الطبخ؟", tag:"COOKING", urgency:false },
+        { id:4, text:"كيف تبدأ مطعماً سحابياً ناجحاً من المنزل؟", tag:"COOKING", urgency:true },
+        { id:5, text:"ما أكثر الأخطاء شيوعاً عند الطبخ يرتكبها المبتدئون؟", tag:"COOKING", urgency:false },
+      ],
+      human: [
+        { id:101, text:"كيف تتعامل مع زبون يشتكي من الطعام وأنت تعرف أنه مثالي؟", tag:"INFLUENCE", urgency:false },
+        { id:102, text:"ما الوصفة التي ورثتها من عائلتك وتعتز بها أكثر من غيرها؟", tag:"LIFESTYLE", urgency:false },
+      ]
+    },
+    General: {
+      expert: [
+        { id:1, text:"ما الفرق بين الذكاء العاطفي والذكاء المعرفي؟ أيهما أهم في العمل؟", tag:"GENERAL", urgency:false },
+        { id:2, text:"كيف تحدد الأولويات حين كل شيء يبدو عاجلاً؟", tag:"GENERAL", urgency:true },
+        { id:3, text:"ما هي العادة الواحدة التي غيّرت حياتك أكثر من غيرها؟", tag:"GENERAL", urgency:false },
+        { id:4, text:"كيف تشرح الـ ChatGPT لشخص من جيل الستينات؟", tag:"GENERAL", urgency:false },
+        { id:5, text:"ما الفرق بين النجاح والإنجاز؟ هل هما نفس الشيء؟", tag:"GENERAL", urgency:false },
+        { id:6, text:"كيف تتعامل مع شخص يسأل عن رأيك وأنت تعلم أن رأيك لن يعجبه؟", tag:"GENERAL", urgency:false },
+      ],
+      human: [
+        { id:101, text:"ما الشيء الذي تتمنى لو تعلّمته مبكراً في حياتك؟", tag:"GROWTH", urgency:false },
+        { id:102, text:"كيف تصف نفسك لشخص لا يعرفك بجملة واحدة فقط؟", tag:"CLARITY", urgency:false },
+        { id:103, text:"ما أصعب قرار اتخذته في حياتك وكيف تعاملت مع نتيجته؟", tag:"MINDSET", urgency:true },
+      ]
+    },
+  };
+
+  // Default fallback for any unlisted domain
+  const defaultQs = {
+    expert: [
+      { id:1, text:"ما أهم شيء تعلّمته في مجالك لا تجده في الكتب؟", tag:"EXPERT", urgency:false },
+      { id:2, text:"ما الفرق بين المبتدئ والمحترف في مجالك؟", tag:"EXPERT", urgency:false },
+      { id:3, text:"ما أكثر سؤال يسألك إياه الناس في مجالك؟", tag:"EXPERT", urgency:false },
+      { id:4, text:"كيف تشرح تخصصك لشخص لا يعرف عنه شيئاً؟", tag:"EXPERT", urgency:false },
+    ],
+    human: [
+      { id:101, text:"كيف تحافظ على شغفك بعملك بعد سنوات من الممارسة؟", tag:"MINDSET", urgency:false },
+      { id:102, text:"ما أصعب تحدٍّ مهني واجهته وكيف تجاوزته؟", tag:"CAREER", urgency:false },
+    ]
+  };
+
+  const qs = domainQs[domain] || defaultQs;
+  // Ensure all questions have domain + answer_count fields
+  const stamp = (arr) => arr.map(q => ({ ...q, domain: domain, answer_count: 0, author: "SYSTEM", created_at: "2026-01-01T00:00:00" }));
+  return { expert: stamp(qs.expert), human: stamp(qs.human) };
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HEALTH CHECK  — ping server on load to set API status pill
+   ══════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════
+   POST A QUESTION
+   ══════════════════════════════════════════════════════════════ */
+function openPostQuestion() {
+  // Pre-select current tab type
+  const typeEl = document.getElementById('post-q-type');
+  typeEl.value = state.currentTab || 'expert';
+  document.getElementById('post-q-text').value = '';
+  document.getElementById('post-q-submit-btn').disabled = true;
+  document.getElementById('post-q-form-body').style.display = '';
+  document.getElementById('post-q-success').style.display = 'none';
+  document.getElementById('post-q-overlay').classList.add('visible');
+}
+
+function closePostQuestion() {
+  document.getElementById('post-q-overlay').classList.remove('visible');
+}
+
+function onPostQInput() {
+  const text = document.getElementById('post-q-text').value.trim();
+  const type = document.getElementById('post-q-type').value;
+  document.getElementById('post-q-submit-btn').disabled = !(text.length > 0 && type);
+}
+
+function submitNewQuestion() {
+  const text    = document.getElementById('post-q-text').value.trim();
+  const type    = document.getElementById('post-q-type').value;
+  const urgency = document.getElementById('post-q-urgency').value === 'true';
+
+  if (!text || !type) return;
+
+  // Build a local question object with a high ID to avoid collisions
+  const newQ = {
+    id:      Date.now(),
+    text:    text,
+    tag:     type === 'expert' ? (state.domain || 'EXPERT').toUpperCase() : 'COMMUNITY',
+    domain:  type === 'expert' ? state.domain : null,
+    urgency: urgency,
+  };
+
+  // Inject into current question pool so it appears immediately
+  if (!state.questions[type]) state.questions[type] = [];
+  state.questions[type].unshift(newQ);
+
+  // Also try posting to backend (fire and forget)
+  if (state.sessionId) {
+    apiPost('/submit-question', {
+      session_id:    state.sessionId,
+      question_text: text,
+      tab:           type,
+      domain:        state.domain,
+      urgency:       urgency,
+    }).catch(() => {});
+  }
+
+  // Show success state
+  document.getElementById('post-q-form-body').style.display = 'none';
+  document.getElementById('post-q-success').style.display = 'block';
+
+  // Refresh feed and close modal after short delay
+  setTimeout(() => {
+    closePostQuestion();
+    if (currentScreen === 'screen-feed') renderFeed();
+  }, 1400);
+}
+
+// Close modal on backdrop click
+document.getElementById('post-q-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closePostQuestion();
+});
+
+// Close profile on backdrop click
+document.getElementById('profile-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeProfile();
+});
+
+
+
+/* ══════════════════════════════════════════════════════════════
+   DELETE ANSWER / QUESTION
+   ══════════════════════════════════════════════════════════════ */
+function deleteAnswer(qId, answerIdx, btn) {
+  const item = btn.closest('.q-answer-item');
+  if (!item) return;
+  if (!confirm('حذف هذه الإجابة؟')) return;
+  item.classList.add('removing');
+  setTimeout(() => {
+    if (answersStore[qId]) {
+      answersStore[qId].splice(answerIdx, 1);
+      if (answersStore[qId].length === 0) delete answersStore[qId];
+    }
+    renderFeed();
+  }, 270);
+}
+
+function deleteQuestion(qId, btn) {
+  const card = btn.closest('.q-card');
+  if (!card) return;
+  if (!confirm('حذف هذا السؤال؟')) return;
+  card.classList.add('removing');
+  setTimeout(() => {
+    ['expert', 'human'].forEach(tab => {
+      if (state.questions[tab])
+        state.questions[tab] = state.questions[tab].filter(q => q.id !== qId);
+      if (state._cachedQuestions && state._cachedQuestions[tab])
+        state._cachedQuestions[tab] = state._cachedQuestions[tab].filter(q => q.id !== qId);
+    });
+    delete answersStore[qId];
+    if (state.selectedQ && state.selectedQ.id === qId) {
+      state.selectedQ = null;
+      const b = document.getElementById('btn-answer');
+      if (b) b.disabled = true;
+    }
+    renderFeed();
+  }, 300);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   INLINE ANSWERS SYSTEM
+   ══════════════════════════════════════════════════════════════ */
+function _storeAnswer(qId, text) {
+  if (!answersStore[qId]) answersStore[qId] = [];
+  answersStore[qId].push({
+    name: state.name !== 'Anonymous' ? state.name : 'مجهول',
+    text: text,
+    time: _nowLabel(),
+    sessionId: state.sessionId || null,
+  });
+}
+
+function _nowLabel() {
+  const now = new Date();
+  return now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+
+function openInlineCompose(qId, btn) {
+  // أغلق أي compose مفتوح ثاني
+  document.querySelectorAll('.inline-compose.open').forEach(el => {
+    if (!el.closest(`[data-qid="${qId}"]`)) el.classList.remove('open');
+  });
+  const compose = btn.closest('.q-card').querySelector('.inline-compose');
+  if (compose) {
+    compose.classList.toggle('open');
+    if (compose.classList.contains('open')) {
+      compose.querySelector('.inline-compose-textarea').focus();
+      btn.style.display = 'none';
+    }
+  }
+}
+
+function cancelInlineCompose(btn) {
+  const compose = btn.closest('.inline-compose');
+  compose.classList.remove('open');
+  const card = compose.closest('.q-card');
+  const answerBtn = card.querySelector('.btn-answer-inline');
+  if (answerBtn) answerBtn.style.display = '';
+}
+
+function submitInlineAnswer(qId, btn) {
+  const ta = btn.closest('.inline-compose').querySelector('.inline-compose-textarea');
+  const text = ta.value.trim();
+  if (!text) return;
+
+  // حفظ الإجابة
+  _storeAnswer(qId, text);
+
+  // تحديث النقاط
+  if (!state.seenIds) state.seenIds = [];
+  state.seenIds.push(qId);
+  state.answers++;
+  state.rankLevel = Math.min(state.answers, RANKS.length);
+  state.lastPts   = 10 + Math.min(Math.floor(text.length / 20), 20);
+  state.score    += state.lastPts;
+  const rankEl = document.getElementById('rank-display');
+  if (rankEl) rankEl.textContent = RANKS[Math.min(state.rankLevel - 1, RANKS.length - 1)];
+  updateXPBar();
+
+  // مهارات
+  const allSkills = SKILL_KEYWORDS[state.domain] || SKILL_KEYWORDS['Code'] || ['EXPERT'];
+  if (!state._skills) state._skills = [];
+  const sk = allSkills[Math.floor(Math.random() * allSkills.length)];
+  if (!state._skills.includes(sk)) state._skills.push(sk);
+
+  // إعادة رسم الفيد مع الإجابة الجديدة ظاهرة
+  renderFeed();
+
+  // scroll للكارد
+  setTimeout(() => {
+    const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 150);
+}
+
+(async function healthCheck() {
+  try {
+    await apiGet('/health');
+    setApiStatus('connected');
+  } catch {
+    setApiStatus('error');
+  }
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   RANK DETAIL SCREEN (NEW)
+   ══════════════════════════════════════════════════════════════ */
+function openRankDetail() {
+  renderRankDetail();
+  navigateTo('screen-rank-detail');
+}
+
+function _animateRankDetailScreen() {
+  // Animate progress bar
+  setTimeout(() => {
+    const fill = document.getElementById('rank-detail-progress-fill');
+    if (fill) {
+      const progress = Math.min((state.answers / RANKS.length) * 100, 100);
+      fill.style.width = progress + '%';
+    }
+  }, 300);
+
+  // Animate stat numbers
+  _animateNumbers();
+
+  // Animate skill bars
+  setTimeout(() => {
+    document.querySelectorAll('.rank-skill-fill').forEach((fill, i) => {
+      setTimeout(() => {
+        const width = fill.dataset.width || '0%';
+        fill.style.width = width;
+      }, i * 100);
+    });
+  }, 500);
+}
+
+function _animateNumbers() {
+  const nums = [
+    { id: 'rank-detail-answers', val: state.answers },
+    { id: 'rank-detail-score', val: state.score },
+    { id: 'rank-detail-streak', val: state.streak },
+    { id: 'rank-detail-next', val: Math.max(5 - state.answers, 0) },
+  ];
+
+  nums.forEach(n => {
+    const el = document.getElementById(n.id);
+    if (!el) return;
+    let current = 0;
+    const step = Math.ceil(n.val / 20) || 1;
+    const timer = setInterval(() => {
+      current = Math.min(current + step, n.val);
+      el.textContent = current;
+      if (current >= n.val) clearInterval(timer);
+    }, 30);
+  });
+}
+
+function renderRankDetail() {
+  const currentRank = RANKS[Math.min(state.rankLevel - 1, RANKS.length - 1)];
+  const nextRank = RANKS[Math.min(state.rankLevel, RANKS.length - 1)] || 'MAX';
+  const prevRank = RANKS[Math.max(state.rankLevel - 2, 0)] || RANKS[0];
+
+  // Hero card
+  document.getElementById('rank-detail-rank').textContent = currentRank;
+  document.getElementById('rank-detail-label').textContent = 
+    (RANK_DESCRIPTIONS[currentRank] || 'CURRENT RANK').toUpperCase();
+  document.getElementById('rank-detail-progress-from').textContent = prevRank;
+  document.getElementById('rank-detail-progress-to').textContent = nextRank === 'MAX' ? 'MAX' : nextRank;
+
+  // Stats
+  document.getElementById('rank-detail-answers-sub').textContent = 
+    state.answers === 0 ? 'Start answering' : `${state.answers} total`;
+  document.getElementById('rank-detail-score-sub').textContent = 
+    state.score === 0 ? 'No points yet' : 'Points earned';
+  document.getElementById('rank-detail-streak-sub').textContent = 
+    state.streak > 0 ? `${state.streak} in a row` : 'No streak';
+  document.getElementById('rank-detail-next-sub').textContent = 
+    state.rankLevel >= RANKS.length ? 'Max rank reached' : 'More answers needed';
+
+  // Rank levels list
+  const levelsEl = document.getElementById('rank-levels-list');
+  levelsEl.innerHTML = RANKS.map((rank, i) => {
+    const isCurrent = i === state.rankLevel - 1;
+    const isUnlocked = i < state.rankLevel;
+    const isLocked = i >= state.rankLevel;
+
+    let status = 'LOCKED';
+    if (isCurrent) status = 'CURRENT';
+    else if (isUnlocked) status = 'UNLOCKED';
+
+    return `
+      <div class="rank-level-item ${isCurrent ? 'current' : ''} ${isUnlocked ? 'unlocked' : ''} ${isLocked ? 'locked' : ''}">
+        <div class="rank-level-num">${String(i + 1).padStart(2, '0')}</div>
+        <div class="rank-level-name">${rank}</div>
+        <div class="rank-level-status">${status}</div>
+      </div>`;
+  }).join('');
+
+  // Activity timeline
+  const timelineEl = document.getElementById('rank-timeline');
+  if (state.activityHistory.length === 0) {
+    timelineEl.innerHTML = `
+      <div class="rank-empty-state">
+        No activity yet. Start answering questions to build your timeline.
+      </div>`;
+  } else {
+    timelineEl.innerHTML = state.activityHistory.slice(0, 10).map(act => `
+      <div class="rank-timeline-item">
+        <div class="rank-timeline-dot ${act.rankUp ? 'rank-up' : ''}"></div>
+        <div class="rank-timeline-content">
+          <div class="rank-timeline-action">
+            ${act.action} <span>${act.target}</span>
+          </div>
+          <div class="rank-timeline-meta">${act.time}</div>
+        </div>
+        <div class="rank-timeline-pts">+${act.pts} PTS</div>
+      </div>
+    `).join('');
+  }
+
+  // Skills grid
+  const skillsGrid = document.getElementById('rank-skills-grid');
+  const allSkills = SKILL_KEYWORDS[state.domain] || SKILL_KEYWORDS['Code'] || ['EXPERT'];
+  const earned = state._skills || [];
+
+  skillsGrid.innerHTML = allSkills.map(skill => {
+    const unlocked = earned.includes(skill);
+    const pct = unlocked ? Math.floor(60 + Math.random() * 40) : Math.floor(Math.random() * 30);
+    return `
+      <div class="rank-skill-item">
+        <div class="rank-skill-name">${skill}</div>
+        <div class="rank-skill-bar">
+          <div class="rank-skill-fill" data-width="${pct}%"></div>
+        </div>
+        <div class="rank-skill-pct">${pct}%</div>
+      </div>`;
+  }).join('');
+
+  // Heatmap (28 days)
+  const heatmapEl = document.getElementById('rank-heatmap');
+  heatmapEl.innerHTML = '';
+  for (let i = 0; i < 28; i++) {
+    const day = document.createElement('div');
+    day.className = 'rank-heatmap-day';
+
+    // Simulate activity levels based on answers
+    const activityLevel = Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : 0;
+    if (activityLevel > 0) {
+      day.classList.add(`level-${activityLevel}`);
+    }
+
+    // Highlight recent days if user has answers
+    if (i >= 28 - state.answers && state.answers > 0) {
+      day.classList.add(`level-${Math.min(3 + Math.floor(Math.random() * 2), 5)}`);
+    }
+
+    heatmapEl.appendChild(day);
+  }
+
+  // Comparison section
+  const compareEl = document.getElementById('rank-compare-section');
+  const avgAnswers = 3;
+  const avgScore = 45;
+
+  compareEl.innerHTML = `
+    <div class="rank-compare-bar">
+      <div class="rank-compare-label">YOU</div>
+      <div class="rank-compare-track">
+        <div class="rank-compare-fill user" style="width: ${Math.min(state.answers / 10 * 100, 100)}%"></div>
+      </div>
+      <div class="rank-compare-value">${state.answers}</div>
+    </div>
+    <div class="rank-compare-bar">
+      <div class="rank-compare-label">AVG USER</div>
+      <div class="rank-compare-track">
+        <div class="rank-compare-fill avg" style="width: ${Math.min(avgAnswers / 10 * 100, 100)}%"></div>
+      </div>
+      <div class="rank-compare-value" style="color:var(--gray)">${avgAnswers}</div>
+    </div>
+    <div style="margin-top:0.75rem;font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.06em;">
+      ${state.answers > avgAnswers ? '✓ Above average performer' : 'Keep going to surpass average'}
+    </div>
+  `;
+}
+</script>
+
+<!-- ════════════════════════════════════════════════════════════
+     PROFILE MODAL
+     ════════════════════════════════════════════════════════════ -->
+<div id="profile-overlay" role="dialog" aria-modal="true">
+  <div class="profile-sheet">
+    <div class="profile-header">
+      <div class="profile-header-title">USER <span>PROFILE</span></div>
+      <button class="profile-close" onclick="closeProfile()">✕</button>
+    </div>
+    <div class="profile-body" id="profile-body">
+      <div class="profile-empty">Loading profile…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     POST A QUESTION MODAL
+     ════════════════════════════════════════════════════════════ -->
+<div id="post-q-overlay" role="dialog" aria-modal="true">
+  <div class="post-q-sheet">
+    <div class="post-q-header">
+      <h3 class="post-q-title">POST A <span>QUESTION</span></h3>
+      <button class="post-q-close" onclick="closePostQuestion()">&#10005;</button>
+    </div>
+
+    <div id="post-q-form-body">
+      <label class="post-q-label" for="post-q-text">YOUR QUESTION</label>
+      <textarea
+        class="post-q-textarea"
+        id="post-q-text"
+        placeholder="Ask something only a real expert can answer…"
+        oninput="onPostQInput()"
+        maxlength="400"
+      ></textarea>
+
+      <div class="post-q-row">
+        <select class="post-q-select" id="post-q-type" onchange="onPostQInput()">
+          <option value="" disabled selected>— QUESTION TYPE —</option>
+          <option value="expert">&#9889; Expert / Technical</option>
+          <option value="human">&#10022; Human / Mindset</option>
+        </select>
+        <select class="post-q-select" id="post-q-urgency">
+          <option value="false" selected>&#9711; Open</option>
+          <option value="true">&#9888; Urgent</option>
+        </select>
+      </div>
+
+      <button class="post-q-submit" id="post-q-submit-btn" disabled onclick="submitNewQuestion()">
+        POST TO ARENA &#8594;
+      </button>
+    </div>
+
+    <div class="post-q-success" id="post-q-success">
+      <div class="post-q-success-icon">&#10003;</div>
+      <p class="post-q-success-msg">QUESTION ADDED TO THE ARENA</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN 6 — RANK DETAIL (NEW)
+     Interactive rank details showing user progress & activity
+     ════════════════════════════════════════════════════════════ -->
+<div id="screen-rank-detail" class="screen">
+  <div class="rank-detail-header">
+    <button class="rank-detail-back" onclick="navigateBack('screen-feed')">
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      BACK
+    </button>
+    <div class="rank-detail-title">RANK <span>DETAIL</span></div>
+    <button class="nav-exit" style="position:relative;top:auto;right:auto;" onclick="showExit()">✕</button>
+  </div>
+
+  <div class="rank-detail-body">
+    <!-- Hero Rank Card -->
+    <div class="rank-hero-card">
+      <div class="rank-hero-rank" id="rank-detail-rank">Λ-01</div>
+      <div class="rank-hero-label" id="rank-detail-label">CURRENT RANK</div>
+      <div class="rank-hero-progress">
+        <div class="rank-hero-progress-label">
+          <span id="rank-detail-progress-from">Λ-01</span>
+          <span id="rank-detail-progress-to">Λ-02</span>
+        </div>
+        <div class="rank-hero-progress-bar">
+          <div class="rank-hero-progress-fill" id="rank-detail-progress-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="rank-stats-grid">
+      <div class="rank-stat-card">
+        <div class="rank-stat-num" id="rank-detail-answers">0</div>
+        <div class="rank-stat-label">TOTAL ANSWERS</div>
+        <div class="rank-stat-sub" id="rank-detail-answers-sub">Keep proving</div>
+      </div>
+      <div class="rank-stat-card">
+        <div class="rank-stat-num" id="rank-detail-score">0</div>
+        <div class="rank-stat-label">TOTAL SCORE</div>
+        <div class="rank-stat-sub" id="rank-detail-score-sub">Points earned</div>
+      </div>
+      <div class="rank-stat-card">
+        <div class="rank-stat-num" id="rank-detail-streak">0</div>
+        <div class="rank-stat-label">ANSWER STREAK</div>
+        <div class="rank-stat-sub" id="rank-detail-streak-sub">Consecutive</div>
+      </div>
+      <div class="rank-stat-card">
+        <div class="rank-stat-num" id="rank-detail-next">5</div>
+        <div class="rank-stat-label">NEXT RANK IN</div>
+        <div class="rank-stat-sub" id="rank-detail-next-sub">More answers</div>
+      </div>
+    </div>
+
+    <!-- Rank Levels -->
+    <div class="rank-activity-section">
+      <div class="rank-section-title">RANK PROGRESSION</div>
+      <div class="rank-levels-list" id="rank-levels-list"></div>
+    </div>
+
+    <!-- Activity Timeline -->
+    <div class="rank-activity-section">
+      <div class="rank-section-title">RECENT ACTIVITY</div>
+      <div class="rank-timeline" id="rank-timeline"></div>
+    </div>
+
+    <!-- Skills Progress -->
+    <div class="rank-activity-section">
+      <div class="rank-section-title">SKILL MASTERY</div>
+      <div class="rank-skills-grid" id="rank-skills-grid"></div>
+    </div>
+
+    <!-- Activity Heatmap -->
+    <div class="rank-activity-section">
+      <div class="rank-section-title">ACTIVITY HEATMAP (LAST 4 WEEKS)</div>
+      <div class="rank-heatmap" id="rank-heatmap"></div>
+      <div class="rank-heatmap-labels">
+        <div class="rank-heatmap-label">SUN</div>
+        <div class="rank-heatmap-label">MON</div>
+        <div class="rank-heatmap-label">TUE</div>
+        <div class="rank-heatmap-label">WED</div>
+        <div class="rank-heatmap-label">THU</div>
+        <div class="rank-heatmap-label">FRI</div>
+        <div class="rank-heatmap-label">SAT</div>
+      </div>
+    </div>
+
+    <!-- Comparison -->
+    <div class="rank-activity-section">
+      <div class="rank-section-title">HOW YOU COMPARE</div>
+      <div id="rank-compare-section"></div>
+    </div>
+  </div>
+
+  <div class="rank-detail-footer">
+    <button class="btn-primary-sm" onclick="goNextQuestion()">KEEP PROVING →</button>
+    <button class="btn-ghost" onclick="openCertificate()">CERTIFICATE</button>
+  </div>
+</div>
+</body>
+</html>

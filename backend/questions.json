@@ -1,0 +1,1230 @@
+{
+  "expert": [
+
+    {
+      "id": 1,
+      "text": "أنت تطور تطبيق React يعاني من إعادة رندرة مستمرة عند تحديث عنصر واحد داخل قائمة تحتوي على آلاف العناصر. كيف تستخدم React.memo وuseMemo وuseCallback معاً لحل هذه المشكلة؟",
+      "tag": "REACT",
+      "domain": "Programming",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 2,
+      "text": "You are building a RESTful API and two simultaneous write requests arrive for the same resource in the same millisecond, causing a Race Condition that corrupts the data. What strategy do you implement at the database level and the application level to solve this?",
+      "tag": "BACKEND",
+      "domain": "Programming",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 3,
+      "text": "في لغة Python، كتبت كوداً يعالج ملفاً ضخماً يحتوي على عشرة ملايين سطر باستخدام قائمة عادية، فامتلأت الذاكرة وتوقف البرنامج. كيف تُعيد كتابة الحل باستخدام المولّدات لتجنب هذه المشكلة؟",
+      "tag": "PYTHON",
+      "domain": "Programming",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 4,
+      "text": "Your team is debating whether to break a growing Monolith into Microservices. The system handles 60,000 daily active users and shares a single database across all modules. What concrete signals tell you the transition is justified, and what hidden costs might make it the wrong decision?",
+      "tag": "ARCHITECTURE",
+      "domain": "Programming",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 5,
+      "text": "ظهر لديك خطأ في TypeScript من نوع 'Object is possibly undefined' عند الوصول إلى خاصية داخل كائن قادم من واجهة برمجية خارجية. متى تستخدم Optional Chaining ومتى تستخدم نوع البيانات unknown بدلاً من any لرفع مستوى أمان الكود؟",
+      "tag": "TYPESCRIPT",
+      "domain": "Programming",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 6,
+      "text": "قمت بإعداد جدار الحماية وأنشأت شبكات افتراضية لعزل أجهزة المنزل الذكي، لكن هذه الأجهزة لا تزال قادرة على الوصول إلى سيرفر البيانات الرئيسي. كيف تحدد الخلل في ترتيب قواعد جدار الحماية وتصلحه؟",
+      "tag": "FIREWALL",
+      "domain": "Security",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 7,
+      "text": "During a penetration test on an internal network, you discover an attacker has successfully performed ARP Spoofing and is intercepting traffic between the gateway and end-user devices. What mitigation techniques do you implement at the switch level to stop this attack?",
+      "tag": "NETWORK",
+      "domain": "Security",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 8,
+      "text": "بيئة Active Directory تتعرض لهجوم تخمين كلمات المرور بشكل منظم. ما هي سياسة القفل الموصى بها لحماية الحسابات دون تعطيل الموظفين نهائياً، وكيف تكتشف الهجوم مبكراً من خلال سجلات الأحداث؟",
+      "tag": "ACTIVE DIRECTORY",
+      "domain": "Security",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 9,
+      "text": "A forensic investigation reveals that malware on a compromised server established a reverse shell to an external command-and-control server using DNS tunneling to bypass the firewall. Walk through the complete Incident Response steps to contain, eradicate, and recover from this threat.",
+      "tag": "INCIDENT RESPONSE",
+      "domain": "Security",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 10,
+      "text": "تريد تطبيق مبدأ الثقة الصفرية على بنية تحتية تجمع بين السحابة والخوادم المحلية. ما هي الخطوات الجوهرية لتطبيق هذا المبدأ بشكل صحيح، وكيف تتعامل مع حركة البيانات الداخلية بين الخوادم؟",
+      "tag": "ZERO TRUST",
+      "domain": "Security",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 11,
+      "text": "You trained a classification model that achieves 98% accuracy on the training set but only 61% on real-world validation data. Describe the full diagnostic process to confirm overfitting and explain three regularization techniques you would apply to close this generalization gap.",
+      "tag": "MACHINE LEARNING",
+      "domain": "AI",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 12,
+      "text": "أثناء تنظيف مجموعة بيانات لمشروع تعلم آلة، اكتشفت أن عموداً جوهرياً يحتوي على 35% من القيم المفقودة. متى يكون حذف الصفوف هو القرار الصحيح، ومتى تلجأ إلى تقنيات متقدمة مثل KNN Imputation بدلاً من الاكتفاء بالمتوسط الحسابي؟",
+      "tag": "DATA CLEANING",
+      "domain": "AI",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 13,
+      "text": "A product team asks you to build a real-time recommendation system for an e-commerce platform with two million users and five hundred thousand products. Compare Collaborative Filtering versus Content-Based Filtering at this scale, and explain how you would handle the Cold Start Problem for new users.",
+      "tag": "RECOMMENDATION",
+      "domain": "AI",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 14,
+      "text": "نموذج معالجة اللغة الطبيعية يعطي نتائج ممتازة على بيانات الاختبار لكنه يفشل بشكل واضح مع البيانات الواقعية بسبب تحيز في مجموعة التدريب. كيف تكتشف مصادر هذا التحيز وما هي طرق تنويع البيانات لتصحيح المشكلة؟",
+      "tag": "NLP",
+      "domain": "AI",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 15,
+      "text": "You are evaluating a computer vision model for medical image classification. The dataset is heavily imbalanced — 95% negative cases and 5% positive. Accuracy alone reaches 95% without learning anything useful. What metrics do you use instead, and how do you handle the imbalance during training?",
+      "tag": "COMPUTER VISION",
+      "domain": "AI",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 16,
+      "text": "بعد رفع تحديث جديد عبر خط النشر التلقائي، تعطل الموقع بالكامل وظهر خطأ 502. السجلات تشير إلى فشل في تشغيل الحاوية الجديدة. ما هي خطوات التراجع السريع إلى الإصدار السابق في بيئة Kubernetes وكيف تتأكد أن الخدمة عادت للعمل بشكل صحيح؟",
+      "tag": "CI/CD",
+      "domain": "Sysadmin",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 17,
+      "text": "A Docker container running a Node.js application is consuming 100% CPU and causing the entire host server to become unresponsive. Walk through the steps to identify the root cause, and explain how to apply CPU and memory resource limits to prevent recurrence.",
+      "tag": "DOCKER",
+      "domain": "Sysadmin",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 18,
+      "text": "سيرفر الويب يتعطل تحت ضغط الزوار العالي ويظهر خطأ 'Too Many Open Files' في السجلات. اشرح العلاقة بين عمليات الخادم وعدد الاتصالات وحدود نظام التشغيل، وما هي القيم المثلى لاستيعاب خمسين ألف اتصال متزامن؟",
+      "tag": "LINUX OPS",
+      "domain": "Sysadmin",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 19,
+      "text": "You need to automate a daily database backup that runs at 3 AM, compresses the dump, transfers it to a remote storage server, and automatically deletes local backups older than 7 days. Write the complete Bash script and cron entry including proper error handling and logging.",
+      "tag": "AUTOMATION",
+      "domain": "Sysadmin",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 20,
+      "text": "تريد نشر تحديث على مئتي سيرفر في بيئة إنتاجية مع ضمان عدم انقطاع الخدمة. كيف تستخدم أداة إدارة التهيئة لتنفيذ النشر على دفعات صغيرة مع التراجع التلقائي عند اكتشاف أي فشل في أي سيرفر؟",
+      "tag": "ANSIBLE",
+      "domain": "Sysadmin",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 21,
+      "text": "You are developing a competitive multiplayer game and players are reporting that their character positions desync between clients after a few minutes of gameplay. How do you architect a server-authoritative game loop with client-side prediction and server reconciliation to solve this?",
+      "tag": "NETCODE",
+      "domain": "Gaming",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 22,
+      "text": "اللعبة التي تطورها تعاني من هبوط حاد في معدل الإطارات عند دخول اللاعب إلى منطقة مكتظة بالشخصيات والتأثيرات البصرية. كيف تستخدم أدوات تحليل الأداء لتحديد نقاط الاختناق في المعالج أو بطاقة الرسوميات وتحل المشكلة؟",
+      "tag": "PERFORMANCE",
+      "domain": "Gaming",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 23,
+      "text": "Players in your game are finding exploits that allow them to teleport through walls and gain infinite currency. Without rebuilding the game from scratch, what anti-cheat architecture would you implement at both the client and server level to detect and prevent these exploits?",
+      "tag": "ANTI-CHEAT",
+      "domain": "Gaming",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 24,
+      "text": "تصمم نظام تقدم اللاعب في لعبة RPG وتريد أن تكون تجربة المكافآت ممتعة ومحفزة على المدى البعيد دون أن تسبب الإدمان أو الملل. ما هو نظام المكافآت المثلى الذي تصممه بناءً على مبادئ علم النفس السلوكي؟",
+      "tag": "GAME DESIGN",
+      "domain": "Gaming",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 25,
+      "text": "Your game studio is launching a live-service game and you need to design a backend that handles one million concurrent players during peak launch hours, with real-time leaderboards, matchmaking, and session state persistence. What cloud architecture do you design and why?",
+      "tag": "BACKEND",
+      "domain": "Gaming",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 26,
+      "text": "جهاز iPhone لا يُشغَّل إطلاقاً بعد تعرضه للماء ولم يعبأ سوى ساعة قبل الحادثة. ما هي خطوات التقييم الأولية، وما هي الدوائر التي تفحصها أولاً باستخدام جهاز قياس الجهد لتحديد مصدر الأعطال؟",
+      "tag": "WATER DAMAGE",
+      "domain": "Repair",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 27,
+      "text": "A customer brings in a Samsung Galaxy with a screen that shows colored vertical lines and partial touch failure after a drop. The phone otherwise powers on and functions normally. How do you diagnose whether the issue is in the display connector, the digitizer layer, or the display driver IC before ordering parts?",
+      "tag": "DISPLAY REPAIR",
+      "domain": "Repair",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 28,
+      "text": "لاب توب يعمل بشكل طبيعي لخمس دقائق ثم يُطفأ فجأة دون أي رسالة خطأ. استبعدت مشكلة الطاقة. كيف تميز بين مشكلة ارتفاع الحرارة في المعالج، وخلل في الذاكرة العشوائية، وعطل في لوحة الأم، وما هي الأدوات التي تستخدم لكل حالة؟",
+      "tag": "LAPTOP REPAIR",
+      "domain": "Repair",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 29,
+      "text": "You are micro-soldering a replacement charge port on a phone motherboard. During reassembly, the phone charges but the data connection is not recognized by any computer. What steps do you take to diagnose whether the issue is a cold solder joint, a damaged pad, a missing component, or a software driver problem?",
+      "tag": "MICRO SOLDERING",
+      "domain": "Repair",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 30,
+      "text": "عميل جلب طابعة لا تتعرف على الحبر الأصلي الجديد رغم أنها تعمل على الحبر القديم. أجريت إعادة ضبط للمصنع لكن المشكلة استمرت. ما هي الأسباب التقنية المحتملة لهذا السلوك وكيف تشخص إذا كانت المشكلة في شريحة الحبر أو قارئ الرقاقة أو البرنامج الداخلي للطابعة؟",
+      "tag": "PERIPHERALS",
+      "domain": "Repair",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 31,
+      "text": "أنت تدير محفظة استثمارية تحتوي على أسهم وسندات وعملات رقمية، وانخفضت قيمتها بنسبة 30% في شهر واحد. كيف تقيّم ما إذا كان يجب البيع أو الإمساك أو الشراء إضافياً، وما هي مؤشرات التحليل الفني والأساسي التي تعتمد عليها لاتخاذ القرار؟",
+      "tag": "PORTFOLIO",
+      "domain": "Finance",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 32,
+      "text": "You are a portfolio manager and a sudden 40% market crash has wiped out gains in your equity positions. Your client is panicking and demanding you liquidate everything. How do you evaluate whether this is a temporary correction or the beginning of a prolonged bear market, and what rebalancing strategy do you recommend?",
+      "tag": "RISK MANAGEMENT",
+      "domain": "Finance",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 33,
+      "text": "شركة ناشئة تطلب منك تقييم جدواها الاستثمارية. لديك قوائمها المالية للسنتين الماضيتين وتلاحظ أن الإيرادات تنمو بنسبة 80% سنوياً لكن التدفق النقدي الحر سالب ومديونيتها تتصاعد. كيف تقيّم ما إذا كانت هذه نمو صحي أو علامة إنذار مبكر؟",
+      "tag": "VALUATION",
+      "domain": "Finance",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 34,
+      "text": "You are structuring a leveraged buyout for a mid-size manufacturing company valued at $50 million. The deal involves 70% debt financing. Walk through how you model the debt repayment schedule, stress-test the deal under a revenue decline scenario, and determine the minimum EBITDA needed to service the debt.",
+      "tag": "LBO",
+      "domain": "Finance",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 35,
+      "text": "تلاحظ أن أسهم شركة ما ترتفع بشكل مفاجئ قبل إعلان اندماج بيوم واحد. كيف تميز بين حركة السوق الطبيعية وبين احتمال وجود تداول مبني على معلومات داخلية، وما هي العلامات التقنية والنمطية التي تراها على الرسم البياني؟",
+      "tag": "MARKET ANALYSIS",
+      "domain": "Finance",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 36,
+      "text": "أثناء مراجعة القوائم المالية لشركة عميل، اكتشفت أن هناك فواتير مسجلة كمصروفات لكن لا توجد لها عقود أو موافقات رسمية، وأن الموردين المرتبطين بها جهات مجهولة المصدر. ما هي إجراءاتك المحاسبية والمهنية في هذه الحالة؟",
+      "tag": "FRAUD DETECTION",
+      "domain": "Accounting",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 37,
+      "text": "A manufacturing company asks you to review why their gross profit margin dropped from 38% to 21% in a single quarter despite a 15% increase in revenue. The cost of goods sold has spiked significantly. Walk through your systematic approach to isolate the root cause between raw material price increases, production inefficiencies, and inventory write-offs.",
+      "tag": "COST ANALYSIS",
+      "domain": "Accounting",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 38,
+      "text": "شركة تريد توسعاً كبيراً وتطلب منك المقارنة بين تمويل هذا التوسع عن طريق إصدار أسهم جديدة أو الاقتراض البنكي. كيف تحسب تكلفة كل خيار على المساهمين الحاليين وما هي العوامل التي تحدد أيهما أفضل لوضع الشركة؟",
+      "tag": "CAPITAL STRUCTURE",
+      "domain": "Accounting",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 39,
+      "text": "A company's cash flow statement shows strong net income of $2 million but negative operating cash flow of $800,000. The accounts receivable has ballooned significantly. Explain the accounting mechanics behind this divergence and what corrective actions management should take before the company faces a liquidity crisis.",
+      "tag": "CASH FLOW",
+      "domain": "Accounting",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 40,
+      "text": "مجموعة شركات مرتبطة تطلب منك إعداد قوائم مالية موحدة. إحدى الشركات التابعة تمتلك 60% من شركة أخرى وسجلت معاملات بينية بأسعار تختلف عن أسعار السوق. كيف تتعامل مع التخلص من المعاملات البينية وحسابات الأقلية في التوحيد؟",
+      "tag": "CONSOLIDATION",
+      "domain": "Accounting",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 41,
+      "text": "متجرك الإلكتروني يحصل على آلاف الزيارات يومياً لكن نسبة الإتمام الشرائي لا تتجاوز 0.8%. بعد تحليل خريطة حرارة التصفح، اكتشفت أن معظم الزوار يتركون صفحة الدفع. ما هي العوامل التي تفحصها أولاً وكيف تصمم اختبار أ/ب لحل المشكلة؟",
+      "tag": "CONVERSION",
+      "domain": "Ecommerce",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 42,
+      "text": "Your e-commerce platform is growing and you are losing customers during flash sales because the inventory system shows items as available while they are simultaneously being purchased by other users, causing overselling and refunds. How do you redesign the inventory and checkout flow to handle concurrent purchases reliably?",
+      "tag": "INVENTORY",
+      "domain": "Ecommerce",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 43,
+      "text": "تشغّل متجراً إلكترونياً لبيع المنتجات اليدوية وتريد بناء نظام توصيات يقترح منتجات مشابهة بناءً على سلوك التصفح وسجل الشراء. ما هي البيانات التي تحتاج جمعها وما هو النهج التقني الأبسط للبدء بدون فريق بيانات متخصص؟",
+      "tag": "RECOMMENDATIONS",
+      "domain": "Ecommerce",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 44,
+      "text": "A customer service crisis erupts when a batch of 800 defective products reaches customers and the returns are flooding in simultaneously. Your warehouse cannot process the volume and customer reviews are tanking. Design the short-term crisis response plan and the long-term operational changes to prevent recurrence.",
+      "tag": "OPERATIONS",
+      "domain": "Ecommerce",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 45,
+      "text": "تريد توسيع متجرك الإلكتروني للبيع في أسواق خليجية متعددة مع دعم عملات مختلفة وطرق دفع محلية وخيارات شحن متنوعة. ما هي التعقيدات التقنية والتشغيلية الرئيسية التي يجب أن تحلها قبل الإطلاق؟",
+      "tag": "EXPANSION",
+      "domain": "Ecommerce",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 46,
+      "text": "لديك مبنى سكني قيد الإنشاء واكتشفت في مرحلة متقدمة أن هناك مشكلة في تصريف المياه ستتسبب في تراكم المياه حول الأساسات. كيف تقيّم خطورة المشكلة، وما هي الحلول الهندسية المتاحة في هذه المرحلة دون هدم ما تم بناؤه؟",
+      "tag": "CONSTRUCTION",
+      "domain": "RealEstate",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 47,
+      "text": "You are evaluating a commercial property for acquisition. The asking price is $3.2 million and the current net operating income is $180,000 annually. The area has seen a 12% appreciation in the past three years but vacancy rates have climbed from 5% to 18%. How do you determine if this is a fair price and what is your negotiation position?",
+      "tag": "VALUATION",
+      "domain": "RealEstate",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 48,
+      "text": "مستأجر توقف عن سداد الإيجار لثلاثة أشهر متتالية ويرفض المغادرة مستنداً إلى عيوب مزعومة في الوحدة لم تُبلَّغ عنها مسبقاً. كيف توثّق وضعك القانوني وتتعامل مع هذه الحالة بأسرع وأقل طريقة مكلفة في ظل أنظمة الإيجار السعودي؟",
+      "tag": "TENANT DISPUTE",
+      "domain": "RealEstate",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 49,
+      "text": "A real estate developer is planning to convert a vacant 8,000 square meter land parcel in a mixed-use zone into a residential compound. The municipality has just announced a new height restriction regulation for the area. How does this change the financial feasibility model and what alternative development strategies do you explore?",
+      "tag": "DEVELOPMENT",
+      "domain": "RealEstate",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 50,
+      "text": "تدير محفظة عقارية تضم 12 وحدة سكنية في مناطق مختلفة. إجمالي الإيرادات السنوية 900,000 ريال لكن نسبة الشواغر ارتفعت من 5% إلى 22% خلال سنة. كيف تحلل أسباب هذا الارتفاع وما هي استراتيجية إعادة التأجير التي تتبعها لكل فئة من الوحدات؟",
+      "tag": "PORTFOLIO MGMT",
+      "domain": "RealEstate",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 51,
+      "text": "أطلقت حملة تسويقية على منصات التواصل الاجتماعي أنفقت فيها 50,000 ريال واكتسبت 4 عملاء فقط. المدير يطلب منك تفسيراً قبل اجتماع الغد. كيف تحلل أداء الحملة باستخدام مقاييس التكلفة لكل اكتساب ونسبة التحويل لتحدد أين تسربت الميزانية؟",
+      "tag": "ANALYTICS",
+      "domain": "Marketing",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 52,
+      "text": "A competitor launches an aggressive pricing campaign that undercuts your product by 35% and starts capturing your market share rapidly. Your product has higher quality but the price gap is causing customer churn. Design a marketing and positioning counter-strategy that does not rely solely on price matching.",
+      "tag": "COMPETITIVE STRATEGY",
+      "domain": "Marketing",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 53,
+      "text": "علامتك التجارية تعرضت لأزمة شهرة بعد انتشار مقطع مسرّب يظهر موظفاً يسيء التعامل مع عميل. المقطع حصل على مليوني مشاهدة خلال 6 ساعات. ما هي خطة الاستجابة للأزمة التي تتبعها على مدار الـ 48 ساعة الأولى؟",
+      "tag": "CRISIS PR",
+      "domain": "Marketing",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 54,
+      "text": "You are planning a product launch campaign with a total budget of $80,000 and need to reach a B2B audience of decision-makers in the healthcare sector. How do you allocate the budget across channels, justify the allocation with expected ROI per channel, and define the success metrics for each?",
+      "tag": "CAMPAIGN PLANNING",
+      "domain": "Marketing",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 55,
+      "text": "شركتك تطلق منتجاً جديداً وتريد بناء قمع تسويقي متكامل يبدأ من الوعي وصولاً إلى الولاء. كيف تصمم محتوى مخصصاً لكل مرحلة من مراحل رحلة العميل، وما هي المقاييس التي تستخدم لمعرفة أين يتوقف العملاء ولا يكملون المسار؟",
+      "tag": "FUNNEL",
+      "domain": "Marketing",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 56,
+      "text": "موكلك وقّع عقد شراكة تجارية دون قراءته بعناية، واكتشف لاحقاً بنداً يمنحه حصة الربح دون مشاركة في الخسائر لكن الشريك الآخر يتمسك بتفسير مختلف للبند نفسه. كيف تحلل النص القانوني وتحدد أي التفسيرين أرجح قانونياً؟",
+      "tag": "CONTRACT LAW",
+      "domain": "Law",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 57,
+      "text": "A startup founder comes to you after a venture capital firm used a SAFE agreement with unusual pro-rata rights that now allow the VC to take a controlling stake in a future round the founder did not anticipate. What legal remedies does the founder have, and how should future funding agreements be structured to prevent this?",
+      "tag": "STARTUP LAW",
+      "domain": "Law",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 58,
+      "text": "شركة تقنية تطوّر تطبيقاً يجمع بيانات المستخدمين ويعالجها على سيرفرات في دول متعددة. كيف تنصحها بالامتثال لأنظمة حماية البيانات المتعارضة بين الاتحاد الأوروبي والمملكة العربية السعودية، وما هي بنية الاتفاقيات التي تحمي الشركة من المسؤولية؟",
+      "tag": "DATA PRIVACY",
+      "domain": "Law",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 59,
+      "text": "An employee who was terminated for gross misconduct is now filing a wrongful dismissal claim and alleging that the documented evidence against them was obtained through illegal workplace surveillance. How do you build the employer's defense and what evidence is admissible under employment law?",
+      "tag": "EMPLOYMENT LAW",
+      "domain": "Law",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 60,
+      "text": "شركتان تتفاوضان على صفقة اندماج بقيمة 200 مليون ريال. في مرحلة التدقيق القانوني، اكتشفت أن الشركة المستهدفة لديها 3 دعاوى قضائية معلقة لم يُفصح عنها في أي من وثائق العرض. كيف تتعامل مع هذا الكشف وما هي الخيارات المتاحة لموكلك؟",
+      "tag": "M&A DUE DILIGENCE",
+      "domain": "Law",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 61,
+      "text": "مريض دخل قسم الطوارئ فاقداً الوعي جزئياً مع ضغط دم منخفض جداً وبقع حمراء على الجسم وتاريخ حساسية مسجّل للمضادات الحيوية. ما هو تشخيصك الأولي والدواء الأول الذي تعطيه فوراً مع تحديد الجرعة والجرعة المعززة عند عدم الاستجابة؟",
+      "tag": "EMERGENCY",
+      "domain": "Medicine",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 62,
+      "text": "While reading an ECG for a patient with acute chest pain and sweating, you observe ST elevation in leads II, III, and aVF with reciprocal ST depression in leads I and aVL. Identify the precise location of the infarct, the culprit artery, and the immediate management steps before the patient reaches the catheterization lab.",
+      "tag": "CARDIOLOGY",
+      "domain": "Medicine",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 63,
+      "text": "مريض وصل الطوارئ بشلل مفاجئ في نصف الجسم وصعوبة في النطق منذ 90 دقيقة. ما الفرق الجوهري في التشخيص والعلاج الطارئ بين السكتة الدماغية الإقفارية والنزفية، ولماذا يُعدّ إعطاء مذيبات التجلط قراراً قاتلاً في حالة معينة؟",
+      "tag": "NEUROLOGY",
+      "domain": "Medicine",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 64,
+      "text": "A patient in the ICU with acute kidney injury has a serum potassium of 7.4 mEq/L and the ECG shows widened QRS complexes. List the emergency treatment steps in the correct sequence, explaining the mechanism of each intervention from cardiac membrane stabilization to definitive potassium removal.",
+      "tag": "NEPHROLOGY",
+      "domain": "Medicine",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 65,
+      "text": "مريض مصاب بالتهاب رئوي حاد ونتيجة الزرع أظهرت بكتيريا مقاومة للمضادات الواسعة الطيف. ما هي خياراتك العلاجية البديلة وكيف تطبق مبدأ الرعاية الدوائية المثلى لمنع انتشار هذه المقاومة داخل وحدة العناية المركزة؟",
+      "tag": "PHARMACOLOGY",
+      "domain": "Medicine",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 66,
+      "text": "مريض متقدم في العمر يأتي يشكو من آلام متكررة في الركبة تزداد عند النزول من السلالم وأثناء الجلوس لفترات طويلة. بعد الفحص السريري وجدت صوتاً طرقعياً وتورماً خفيفاً. كيف تقيّم درجة الإعاقة الوظيفية وما هو بروتوكول العلاج الطبيعي المناسب لهذه الحالة؟",
+      "tag": "ORTHOPEDICS",
+      "domain": "Fitness",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 67,
+      "text": "An elite marathon runner approaches you with a recurring hamstring strain that has now happened three times in six months, always at the same stage of the race. Based on biomechanical principles, how do you assess the root cause — whether it is a strength imbalance, running economy flaw, or programming error — and redesign their training to prevent recurrence?",
+      "tag": "SPORTS REHAB",
+      "domain": "Fitness",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 68,
+      "text": "عميل يريد خسارة 15 كيلوغراماً في 4 أشهر ويصر على اتباع حمية قاسية جداً تقل عن 800 سعرة حرارية يومياً مع تمارين مكثفة. كيف تشرح له المخاطر الصحية والفيزيولوجية لهذا النهج وتقنعه ببديل آمن يحقق هدفه بوتيرة مستدامة؟",
+      "tag": "NUTRITION",
+      "domain": "Fitness",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 69,
+      "text": "You are designing a 16-week strength training program for an intermediate male athlete whose goal is to increase his one-rep max squat from 120 kg to 160 kg. He trains 4 days a week and has a history of lower back pain that was resolved two years ago. Outline the periodization model, weekly structure, and key safety considerations.",
+      "tag": "STRENGTH TRAINING",
+      "domain": "Fitness",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 70,
+      "text": "رياضي يتدرب على التحمل لاحظت أن أدائه تراجع بشكل ملحوظ رغم زيادة ساعات التدريب وهو يعاني من التعب المستمر والنوم المضطرب وانخفاض التحفيز. كيف تشخّص احتمالية الإفراط في التدريب وما هي بروتوكولات الاستشفاء التي توصي بها قبل العودة للتدريب الطبيعي؟",
+      "tag": "RECOVERY",
+      "domain": "Fitness",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 71,
+      "text": "مريض يأتيك بقصة من 8 أشهر من الأفكار المتسارعة والشعور بالعظمة وانعدام الحاجة للنوم لأيام متتالية ثم ينتهي كل نوبة بكآبة عميقة وعزلة تامة. كيف تميز بين الاضطراب ثنائي القطب من النوع الأول والثاني ومتلازمة سرعة الدوران في تشخيصك الأولي؟",
+      "tag": "BIPOLAR",
+      "domain": "Psychology",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 72,
+      "text": "A 16-year-old is referred to you after a school counselor noticed signs of self-harm. During the first session, the client is uncommunicative and gives only one-word answers. The parents want a full diagnosis report within two weeks. How do you approach the therapeutic alliance, manage parental expectations, and conduct a safe risk assessment without alienating the client?",
+      "tag": "ADOLESCENT THERAPY",
+      "domain": "Psychology",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 73,
+      "text": "موظف يُحال إليك من قِبَل صاحب العمل بعد انتكاسة في الأداء الوظيفي تزامنت مع خسارة أحد الوالدين. يشكو من صعوبة في التركيز وأفكار متكررة عن المتوفى وتجنّب أي حديث عن المستقبل. كيف تميز بين الحزن الطبيعي واضطراب الحزن المطوّل وما هو نهجك العلاجي؟",
+      "tag": "GRIEF",
+      "domain": "Psychology",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 74,
+      "text": "A client with severe social anxiety has been avoiding all social situations for two years, which has led to job loss and social isolation. Previous therapists used supportive therapy with limited results. How do you design a structured exposure hierarchy using CBT principles, and how do you handle resistance when the client refuses to engage with the first exposure step?",
+      "tag": "CBT",
+      "domain": "Psychology",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 75,
+      "text": "مريض يحضر بشكوى رئيسية وهي أنه لا يستطيع إنهاء أي مشروع أو مهمة يبدأها حتى الأعمال التي يحبها. بعد التقييم الشامل تستبعد الاكتئاب واضطراب نقص الانتباه. كيف تستكشف الأنماط النفسية الأعمق كالكمالية المشلّة والخوف من التقييم في العلاج؟",
+      "tag": "PROCRASTINATION",
+      "domain": "Psychology",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 76,
+      "text": "أثناء صب الخرسانة في خزان مياه بارتفاع 6 أمتار، اكتشف الفريق تشققات في القالب الخشبي قبل اكتمال الصب. هل توقف العملية أم تكمل؟ وما هي المعايير الهندسية التي تحكم هذا القرار وتقدير الضغط الجانبي على القوالب؟",
+      "tag": "CONCRETE",
+      "domain": "Engineering",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 77,
+      "text": "A structural analysis report for a 12-story residential building shows that two columns in the podium level are carrying 140% of their designed load capacity following a change in the architectural layout. The building is already occupied. What is your step-by-step engineering response to assess the risk and implement a remediation solution without evacuating residents?",
+      "tag": "STRUCTURAL",
+      "domain": "Engineering",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 78,
+      "text": "تصمم منظومة تبريد لمستشفى كبير وتحتاج إلى اختيار بين أنظمة التكييف المركزي المبردة بالماء وأنظمة التبريد الهوائي المباشر. ما هي المعاملات الهندسية التي تحسبها لاتخاذ القرار، مع الأخذ بعين الاعتبار متطلبات الاستمرارية والكفاءة في المناخ الخليجي؟",
+      "tag": "HVAC",
+      "domain": "Engineering",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 79,
+      "text": "You are the lead engineer on a water treatment plant project and during commissioning you discover that the chlorination dosing system is injecting 3.5 times the design dosage due to a calibration error in the flow meter feedback loop. The plant is scheduled to begin supplying water to a residential area in 48 hours. What is your technical response and regulatory obligation?",
+      "tag": "WATER SYSTEMS",
+      "domain": "Engineering",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 80,
+      "text": "جسر يمر فوق وادٍ موسمي ويظهر في تقرير الفحص الدوري تصدعات مائلة متكررة عند نقاط الدعم مع ترقق ملحوظ في غطاء الخرسانة. كيف تصنّف مستوى الخطر وتقرر بين الإصلاح الفوري والمراقبة المستمرة والإغلاق الوقائي؟",
+      "tag": "INSPECTION",
+      "domain": "Engineering",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 81,
+      "text": "عميل يطلب منك تصميم هوية بصرية كاملة لعلامة تجارية فاخرة تستهدف الجيل الجديد. بعد تقديم المفهوم الأول أعجبه المحتوى لكنه يرى أن الألوان لا تعكس الفخامة. كيف تشرح قرارات الألوان بلغة تصميمية مقنعة وتوجه العميل بدلاً من الاستسلام لتفضيلاته الشخصية؟",
+      "tag": "BRANDING",
+      "domain": "Design",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 82,
+      "text": "You conducted usability testing on a mobile app and found that 70% of users cannot complete the checkout process in under 3 minutes. Eye-tracking data shows users repeatedly look for a confirmation button that exists but goes unnoticed. Redesign the interaction flow and explain the UX principles driving each change.",
+      "tag": "UX DESIGN",
+      "domain": "Design",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 83,
+      "text": "تصمم واجهة مستخدم لمنصة تعليمية يستخدمها أشخاص تتراوح أعمارهم بين 8 و65 سنة على أجهزة متعددة. كيف تطبق مبادئ التصميم الشامل لضمان إمكانية الوصول، وما هي معايير WCAG التي تعدّها غير قابلة للتفاوض في هذا السياق؟",
+      "tag": "ACCESSIBILITY",
+      "domain": "Design",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 84,
+      "text": "A fashion brand asks you to redesign their packaging to be completely sustainable while maintaining premium visual appeal. The current packaging uses four-color printing on coated stock with a foil stamping finish. Propose an alternative material and finishing solution that meets both the environmental brief and the luxury positioning.",
+      "tag": "PRINT DESIGN",
+      "domain": "Design",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 85,
+      "text": "تصمم تجربة مستخدم لتطبيق صحي يتعامل مع بيانات حساسة جداً وتريد أن يشعر المستخدم بالأمان والثقة منذ اللحظة الأولى. كيف تترجم مفهوم الثقة إلى قرارات تصميمية ملموسة في الألوان والخطوط والتدفق والصياغة اللغوية؟",
+      "tag": "TRUST DESIGN",
+      "domain": "Design",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 86,
+      "text": "التقطت صور لحفل زفاف وعند المعالجة اكتشفت أن 60 صورة من أهم لحظات الحفل كانت معرضة بشكل خاطئ بسبب خلل لم تلاحظه في وقت التصوير. إلى أي مدى يمكن إنقاذها في المعالجة دون أن تبدو مصطنعة، وكيف تتعامل مع العميل؟",
+      "tag": "POST PROCESSING",
+      "domain": "Photography",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 87,
+      "text": "You are shooting a corporate portrait session in a windowless office with harsh fluorescent overhead lighting. The client insists on using the office as the background. Describe exactly how you would modify, supplement, or work with the existing light to produce professional headshots that look natural rather than like an office snapshot.",
+      "tag": "LIGHTING",
+      "domain": "Photography",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 88,
+      "text": "تصوّر حدثاً خارجياً ليلياً وسرعة الإضاءة منخفضة جداً. كاميرتك تنتج ضوضاء رقمية عالية عند رفع حساسية الإضاءة. كيف تحقق التوازن بين ثلاثية التعريض الضوئي في هذه الظروف الصعبة وما هي تقنيات التقليل من الضوضاء أثناء المعالجة؟",
+      "tag": "LOW LIGHT",
+      "domain": "Photography",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 89,
+      "text": "A magazine commissions you to photograph a chef for a cover story. The chef is unphotogenic and uncomfortable in front of the camera and the session is only 45 minutes. How do you direct a non-model subject to produce authentic, magazine-quality portraits that tell the story of who they are?",
+      "tag": "PORTRAIT",
+      "domain": "Photography",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 90,
+      "text": "تريد بناء سعرك كمصور محترف وتلاحظ أنك تخسر عروضاً بسبب السعر المرتفع لكنك عندما خفّضت السعر وجدت أن العملاء يفترضون أن الجودة أقل. كيف تُبني استراتيجية تسعير تعكس قيمتك الحقيقية وتجذب العميل المناسب دون منافسة السعر الرخيص؟",
+      "tag": "BUSINESS",
+      "domain": "Photography",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 91,
+      "text": "تُدرّس مادة الرياضيات لطلاب الصف السادس وتلاحظ أن ثلثهم يُتقنون المفاهيم بسرعة بينما الثلث الآخر يتأخر كثيراً وبقيتهم في المنتصف. كيف تصمم درساً واحداً يخدم هذه المستويات الثلاثة في نفس الوقت دون أن تشعر أي مجموعة بالتمييز؟",
+      "tag": "DIFFERENTIATED LEARNING",
+      "domain": "Education",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 92,
+      "text": "You are an instructional designer building an online course for adult learners who are professional accountants seeking CPD certification. Completion rates on similar courses average 18%. Applying adult learning theory and engagement research, what structural, content, and motivational design decisions would you make to push completion rates above 70%?",
+      "tag": "INSTRUCTIONAL DESIGN",
+      "domain": "Education",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 93,
+      "text": "طالب موهوب في صفك يُظهر قدرات استثنائية لكنه يرفض المشاركة ويتصرف بعدوانية تجاه زملائه. المرشد الطلابي يقترح تصنيفه كمضطرب سلوكياً. كيف تتعامل مع هذه الحالة بطريقة تربوية عميقة قبل الوصول إلى التصنيف؟",
+      "tag": "STUDENT BEHAVIOR",
+      "domain": "Education",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 94,
+      "text": "A school adopts a new standardized testing framework and initial results show that students from lower-income households consistently score 30% lower than peers with identical classroom performance. As an assessment specialist, how do you evaluate whether this gap reflects genuine learning differences or structural bias in the assessment design itself?",
+      "tag": "ASSESSMENT",
+      "domain": "Education",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 95,
+      "text": "تشرف على مدرسة تتبنى تقنيات الذكاء الاصطناعي في الفصول الدراسية لأول مرة. بعض المعلمين متحمسون جداً والآخرون قلقون على مكانتهم المهنية. كيف تُدير عملية التحول التقني بطريقة تحترم مخاوف المعلمين وتضمن أن التقنية تعزز التعليم بدلاً من استبدال الإنسان فيه؟",
+      "tag": "EDTECH",
+      "domain": "Education",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 96,
+      "text": "تكتب رواية طويلة وفي الفصل العشرين تدرك أن الخط الدرامي الرئيسي أصبح متوقعاً تماماً وأن شخصيتك الرئيسية فقدت التعقيد الذي بدأت به. كيف تُعيد هيكلة ما كتبت دون هدمه، وما هي تقنيات تشخيص أزمات الخط الدرامي في الكتابة الإبداعية؟",
+      "tag": "CREATIVE WRITING",
+      "domain": "Writing",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 97,
+      "text": "You are a content strategist for a B2B SaaS company and the blog has been publishing weekly for two years with no measurable impact on organic search rankings or lead generation. A content audit reveals 240 published posts. How do you diagnose whether the problem is SEO strategy, content quality, topic targeting, or conversion design, and what is your 90-day action plan?",
+      "tag": "CONTENT STRATEGY",
+      "domain": "Writing",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 98,
+      "text": "تُعدّ تقريراً صحفياً عن قضية فساد داخل جهة حكومية ولديك مصادر موثوقة ترفض الكشف عن هويتها وتسجيلات صوتية حصلت عليها بطريقة قانونية مشكوك فيها في بعض الولايات. كيف توازن بين المسؤولية الصحفية في نشر الحقيقة والاعتبارات القانونية والأخلاقية قبل النشر؟",
+      "tag": "JOURNALISM",
+      "domain": "Writing",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 99,
+      "text": "A publisher offers you a contract for your non-fiction book but the advance is significantly below market rate and the royalty structure heavily favors the publisher in the first 10,000 copies. The publisher has excellent distribution. How do you evaluate whether to accept, negotiate, or self-publish, and what specific contract terms would you push back on?",
+      "tag": "PUBLISHING",
+      "domain": "Writing",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 100,
+      "text": "تكتب نصاً تسويقياً لمنتج دواء عشبي وصاحب الشركة يطلب منك ادعاءات علاجية لم تثبت علمياً. كيف تكتب نصاً مقنعاً ومؤثراً يجذب المشتري دون أن يتضمن ادعاءات طبية مضللة تُعرّض الشركة للمساءلة القانونية وتُعرّضك للمساءلة المهنية؟",
+      "tag": "COPYWRITING",
+      "domain": "Writing",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 101,
+      "text": "سيارتك تُصدر صوتاً طرقعياً من الجهة الأمامية اليسرى عند الدوران فقط وتختفي عند السير بشكل مستقيم. أجريت فحصاً بصرياً ولم تجد أي تسرب أو تلف ظاهر. ما هي أجزاء التعليق والمحرك التي تفحصها بالترتيب لعزل المشكلة؟",
+      "tag": "SUSPENSION",
+      "domain": "Cars",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 102,
+      "text": "A customer brings in a modern direct-injection turbocharged engine with a confirmed misfire on cylinder 3. You have replaced the spark plug and ignition coil with no improvement. The fuel injector tests show normal resistance and spray pattern. Walk through the next diagnostic steps to determine whether the issue is mechanical, electrical, or software-related.",
+      "tag": "ENGINE DIAGNOSTICS",
+      "domain": "Cars",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 103,
+      "text": "ضوء تحذيري لنظام منع الانزلاق والثبات يضيء بشكل متقطع على سيارة رباعية الدفع حديثة. فحص الأخطاء أعطى كوداً يشير إلى حساس سرعة عجلة في الخلف لكن استبداله لم يحل المشكلة. ما هي خطوات التشخيص المتقدمة التي تتبعها للوصول إلى السبب الجذري؟",
+      "tag": "ABS/TRACTION",
+      "domain": "Cars",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 104,
+      "text": "You are preparing a track-day vehicle that was previously a daily driver. The owner wants to upgrade the braking system to handle sustained high-temperature use without fade. Compare big brake kit upgrades versus quality pad and fluid improvements, and explain the thermal dynamics that determine which solution is appropriate for the level of use.",
+      "tag": "PERFORMANCE MODS",
+      "domain": "Cars",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 105,
+      "text": "سيارة كهربائية حديثة تُظهر رسالة تدهور مفاجئ في سعة البطارية بنسبة 18% خلال 3 أشهر فقط، وهذا أسرع بكثير من المعدل الطبيعي. المالك يتهم الشاحن السريع. كيف تشخّص ما إذا كانت المشكلة في بروتوكول الشحن، أو خلية بطارية معطوبة، أو خلل في نظام إدارة البطارية؟",
+      "tag": "EV SYSTEMS",
+      "domain": "Cars",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 106,
+      "text": "أثناء رحلة جوية تجارية على ارتفاع 35,000 قدم، لاحظت قراءات غير متسقة بين نظامَي الارتفاع الجوي الرئيسي والاحتياطي بفارق 800 قدم. كيف تُحدد النظام الصحيح وما هي الإجراءات التشغيلية الفورية التي تتبعها وفق قائمة التحقق؟",
+      "tag": "FLIGHT SYSTEMS",
+      "domain": "Aviation",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 107,
+      "text": "You are conducting a pre-flight inspection on a turboprop aircraft and discover a small but visible crack propagating from a rivet hole on the lower wing skin, approximately 3 cm in length. The aircraft is scheduled for a charter flight in 2 hours. Walk through the airworthiness determination process and your obligation under aviation maintenance regulations.",
+      "tag": "AIRWORTHINESS",
+      "domain": "Aviation",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 108,
+      "text": "طيار يؤدي اقتراباً آلياً في ظروف مناخية صعبة عند مستوى القرار ويلاحظ أن الطائرة انحرفت عن مسار الاقتراب بمقدار نقطة واحدة في نظام الهبوط الآلي مع إشارة خطأ جزئية على شاشة الهبوط. هل يكمل الاقتراب أم يُعيد المحاولة؟ ما هي المعايير الدقيقة لهذا القرار؟",
+      "tag": "IFR PROCEDURES",
+      "domain": "Aviation",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 109,
+      "text": "An air traffic controller handling a busy sector notices two aircraft on converging paths with a projected separation loss in 4 minutes. One aircraft is not responding to radio calls and the other is a medical emergency flight that cannot deviate from its current routing. Describe the exact sequence of actions you take to resolve the conflict.",
+      "tag": "ATC",
+      "domain": "Aviation",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 110,
+      "text": "مهندس صيانة طيران يُنجز فحص المحرك الدوري ويكتشف أن قراءات التحليل الطيفي للزيت تُظهر ارتفاعاً في تركيز الحديد والنيكل بنسبة تتجاوز الحد المسموح. المحرك لديه 200 ساعة طيران متبقية حتى الصيانة الكبرى. ما هي خطواتك التشخيصية والتوثيقية وهل توصي بتعليق الطيران؟",
+      "tag": "ENGINE MAINTENANCE",
+      "domain": "Aviation",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 111,
+      "text": "تطبخ كمية كبيرة من اليخنة لحفل وعند التذوق قبل ساعتين من الخدمة وجدتها مفرطة في الملوحة بشكل واضح لا يمكن تحمله. هل يمكن إنقاذ الطبق؟ ما هي التقنيات المتاحة لتقليل الملوحة مع الحفاظ على عمق النكهة دون تخفيف الطبق بشكل مبالغ فيه؟",
+      "tag": "FLAVOR RESCUE",
+      "domain": "Cooking",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 112,
+      "text": "You are executing a complex tasting menu for 40 guests and the pastry component — a molten chocolate fondant — requires precise 12-minute baking time and must be served immediately. Your oven has 8 ramekin slots and service is staggered over 90 minutes. How do you design the production and firing schedule to ensure every guest gets a perfectly executed fondant without any batch sitting too long?",
+      "tag": "KITCHEN MANAGEMENT",
+      "domain": "Cooking",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 113,
+      "text": "تريد تطوير وصفة الخبز المخمر الخاص بك لتحصل على قشرة مقرمشة ولب هوائي ذو فتحات كبيرة. جربت عدة وصفات لكن الرغيف يخرج كثيفاً دائماً وقشرته لينة. كيف تشخص ما إذا كانت المشكلة في نسبة الترطيب، أو قوة الخميرة الطبيعية، أو تقنية الطي والتشكيل، أو درجة الحرارة والبخار في الفرن؟",
+      "tag": "BAKING SCIENCE",
+      "domain": "Cooking",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 114,
+      "text": "A health-conscious client asks you to develop a plant-based version of a classic beef Wellington that maintains the dramatic presentation and layered textures of the original. What ingredients and techniques do you use for each component — the protein core, the duxelles, and the pastry wrapping — to achieve a result that satisfies both aesthetically and gastronomically?",
+      "tag": "RECIPE DEVELOPMENT",
+      "domain": "Cooking",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 115,
+      "text": "تفتح مطعماً صغيراً وتلاحظ بعد ثلاثة أشهر أن الإيرادات تكفي لتغطية التكاليف الثابتة لكن هامش الربح الصافي بالكاد يصل إلى 4%. تحليلك يُظهر أن تكلفة الطعام تستهلك 42% من الإيرادات وهي أعلى من المعدل الصناعي. ما هي نقاط التسرب في المطبخ التي تفحصها وكيف تُعيد هيكلة القائمة لتحسين الهامش؟",
+      "tag": "FOOD COST",
+      "domain": "Cooking",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+
+    {
+      "id": 116,
+      "text": "صديق يعمل في مجال تقني معقد ويشكو من أنه لا يستطيع شرح عمله لأهله أو أصحابه دون أن يفقدهم خلال دقيقتين. ما هي التقنيات الأساسية لتبسيط الأفكار المعقدة لجمهور غير متخصص دون التضحية بالدقة أو الإساءة لذكاء المستمع؟",
+      "tag": "COMMUNICATION",
+      "domain": "General",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 117,
+      "text": "You are managing a cross-functional team of 8 people and a critical project deadline is in 10 days. Two key team members are in open conflict and refusing to collaborate, which is blocking progress for everyone else. How do you intervene to resolve the conflict, maintain team morale, and still deliver the project on time?",
+      "tag": "LEADERSHIP",
+      "domain": "General",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 118,
+      "text": "تواجه قراراً صعباً في حياتك المهنية بين قبول وظيفة براتب أعلى بكثير في شركة تفتقر إلى بيئة عمل محفزة، أو البقاء في وضعك الحالي الذي يمنحك نمواً مهنياً وعلاقات جيدة لكن بمردود مالي أقل. كيف تبني إطاراً منطقياً لاتخاذ هذا القرار دون أن تحكم عليه بالعاطفة فقط؟",
+      "tag": "DECISION MAKING",
+      "domain": "General",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 119,
+      "text": "You have been given responsibility for a failing initiative that was started by someone else. The team is demoralized, the timeline is unrealistic, the scope is unclear, and stakeholders have lost confidence. What is your systematic approach to assess the true state of the initiative, rebuild credibility, and determine whether to rescue, pivot, or shut it down?",
+      "tag": "PROBLEM SOLVING",
+      "domain": "General",
+      "urgency": true,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    },
+    {
+      "id": 120,
+      "text": "لاحظت أن إنتاجيتك الفكرية في أفضل حالاتها بين ساعتين إلى ثلاث ساعات في اليوم فقط وبعدها تتراجع بشكل حاد. لديك أعمال تحتاج إلى تركيز عميق وأعمال روتينية وتواصل مستمر. كيف تعيد تصميم يوم عملك لتستثمر نافذة التركيز العالي وتوزع بقية المهام بذكاء؟",
+      "tag": "PRODUCTIVITY",
+      "domain": "General",
+      "urgency": false,
+      "answer_count": 0,
+      "author": "SYSTEM",
+      "created_at": "2026-05-18T00:00:00"
+    }
+
+  ],
+  "human": []
+}
