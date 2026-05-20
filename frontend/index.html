@@ -4534,8 +4534,10 @@ state.questions[type].unshift(newQ);
 }
 
 // Close modal on backdrop click
-document.getElementById('post-q-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closePostQuestion();
+window.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('post-q-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closePostQuestion();
+  });
 });
 
 // Close profile on backdrop click
