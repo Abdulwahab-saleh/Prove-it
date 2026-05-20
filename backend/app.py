@@ -113,6 +113,27 @@ def get_questions():
         for q in filtered[:12]:
             result[q_type].append(json_q_to_dict(q, q_type, str(q['id']) in seen))
 
+  # أسئلة المستخدمين من قاعدة البيانات
+    conn = db()
+    user_qs = conn.execute(
+        "SELECT * FROM user_questions ORDER BY created_at DESC LIMIT 50"
+    ).fetchall()
+    conn.close()
+
+    for q in user_qs:
+        q_type = q['q_type'] if q['q_type'] in ('expert', 'human') else 'human'
+        result[q_type].insert(0, {
+            "id":       f"uq-{q['id']}",
+            "text":     q['text'],
+            "tag":      q['tag'],
+            "domain":   q['domain'],
+            "urgency":  bool(q['urgency']),
+            "urgent":   bool(q['urgency']),
+            "answers":  q['answer_count'],
+            "answered": False,
+            "q_type":   q_type,
+        })
+
     return jsonify(result)
 
 @app.route('/get-question', methods=['GET'])
