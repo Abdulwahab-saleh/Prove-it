@@ -352,6 +352,48 @@ def stats():
     return jsonify({"totalSessions": s, "totalAnswers": a, "totalQuestions": q})
 
 if __name__ == '__main__':
+    # ══════════════════════════════════════════════════════════════════════
+# ROUTE — SUBMIT NEW QUESTION (من المستخدمين)
+# ══════════════════════════════════════════════════════════════════════
+@app.route('/submit-question', methods=['POST'])
+def submit_question():
+    d = request.json or {}
+    session_id    = d.get('session_id', '')
+    question_text = (d.get('question_text') or '').strip()
+    tab           = d.get('tab', 'human')          # 'expert' أو 'human'
+    domain        = d.get('domain', 'General') or 'General'
+    urgency       = bool(d.get('urgency', False))
+
+    if not question_text:
+        return jsonify({"error": "Question text is required"}), 400
+
+    # اقرأ الملف الحالي
+    data = load_questions_json()
+
+    # أنشئ السؤال الجديد
+    new_id = int(datetime.utcnow().timestamp() * 1000)  # ID فريد بالميلي ثانية
+    new_q = {
+        "id":           new_id,
+        "text":         question_text,
+        "tag":          tab.upper(),
+        "domain":       domain,
+        "urgency":      urgency,
+        "answer_count": 0,
+        "submitted_by": session_id,
+        "created_at":   datetime.utcnow().isoformat(),
+    }
+
+    # أضفه في بداية القائمة المناسبة
+    q_type = tab if tab in ('expert', 'human') else 'human'
+    if q_type not in data:
+        data[q_type] = []
+    data[q_type].insert(0, new_q)
+
+    # احفظ في questions.json
+    with open(QUESTIONS_JSON, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    return jsonify({"success": True, "id": new_id})
     init_db()
     port = int(os.environ.get('PORT', 5000))
     print(f"\n   PROVE IT API running on port {port}")
@@ -359,3 +401,4 @@ if __name__ == '__main__':
 
 # Always init DB on import (for gunicorn)
 init_db()
+
