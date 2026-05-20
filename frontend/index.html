@@ -3206,7 +3206,9 @@ button, a {
 /* ══════════════════════════════════════════════════════════════
    CONFIGURATION
    ══════════════════════════════════════════════════════════════ */
-const API_BASE = 'https://prove-it-ag8p.onrender.com';
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? `http://${window.location.hostname}:5000`
+  : 'https://prove-it-ag8p.onrender.com'; 
 
 /* ══════════════════════════════════════════════════════════════
    CLIENT STATE  (mirrors server, kept in sync after each API call)
@@ -4488,7 +4490,7 @@ function onPostQInput() {
   document.getElementById('post-q-submit-btn').disabled = !(text.length > 0 && type);
 }
 
-function submitNewQuestion() {
+async function submitQuestion() {
   const text    = document.getElementById('post-q-text').value.trim();
   const type    = document.getElementById('post-q-type').value;
   const urgency = document.getElementById('post-q-urgency').value === 'true';
@@ -4504,21 +4506,22 @@ function submitNewQuestion() {
     urgency: urgency,
   };
 
-  // Inject into current question pool so it appears immediately
-  if (!state.questions[type]) state.questions[type] = [];
-  state.questions[type].unshift(newQ);
-
-  // Also try posting to backend (fire and forget)
-  if (state.sessionId) {
-    apiPost('/submit-question', {
+ if (state.sessionId) {
+  try {
+    await apiPost('/submit-question', {
       session_id:    state.sessionId,
       question_text: text,
       tab:           type,
       domain:        state.domain,
       urgency:       urgency,
-    }).catch(() => {});
+    });
+  } catch(e) {
+    // حتى لو فشل السيرفر، أضفه محلياً كـ fallback
   }
-
+}
+// أضف محلياً بعد الإرسال
+if (!state.questions[type]) state.questions[type] = [];
+state.questions[type].unshift(newQ);
   // Show success state
   document.getElementById('post-q-form-body').style.display = 'none';
   document.getElementById('post-q-success').style.display = 'block';
