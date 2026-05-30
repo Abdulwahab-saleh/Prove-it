@@ -113,27 +113,6 @@ def get_questions():
         for q in filtered[:12]:
             result[q_type].append(json_q_to_dict(q, q_type, str(q['id']) in seen))
 
-  # أسئلة المستخدمين من قاعدة البيانات
-    conn = db()
-    user_qs = conn.execute(
-        "SELECT * FROM user_questions ORDER BY created_at DESC LIMIT 50"
-    ).fetchall()
-    conn.close()
-
-    for q in user_qs:
-        q_type = q['q_type'] if q['q_type'] in ('expert', 'human') else 'human'
-        result[q_type].insert(0, {
-            "id":       f"uq-{q['id']}",
-            "text":     q['text'],
-            "tag":      q['tag'],
-            "domain":   q['domain'],
-            "urgency":  bool(q['urgency']),
-            "urgent":   bool(q['urgency']),
-            "answers":  q['answer_count'],
-            "answered": False,
-            "q_type":   q_type,
-        })
-
     return jsonify(result)
 
 @app.route('/get-question', methods=['GET'])
@@ -372,8 +351,7 @@ def stats():
     q = sum(len(data.get(t, [])) for t in ('expert', 'human'))
     return jsonify({"totalSessions": s, "totalAnswers": a, "totalQuestions": q})
 
-if __name__ == '__main__':
-    # ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════
 # ROUTE — SUBMIT NEW QUESTION (من المستخدمين)
 # ══════════════════════════════════════════════════════════════════════
 @app.route('/submit-question', methods=['POST'])
@@ -381,71 +359,48 @@ def submit_question():
     d = request.json or {}
     session_id    = d.get('session_id', '')
     question_text = (d.get('question_text') or '').strip()
-    tab           = d.get('tab', 'human')
+    tab           = d.get('tab', 'human')          # 'expert' أو 'human'
     domain        = d.get('domain', 'General') or 'General'
     urgency       = bool(d.get('urgency', False))
 
     if not question_text:
         return jsonify({"error": "Question text is required"}), 400
 
-    q_type = tab if tab in ('expert', 'human') else 'human'
-    now = datetime.utcnow().isoformat()
+    # اقرأ الملف الحالي
+    data = load_questions_json()
 
-    conn = db()
-    cur = conn.execute(
-        "INSERT INTO user_questions (text, tag, domain, urgency, submitted_by, q_type, created_at) VALUES (?,?,?,?,?,?,?)",
-        (question_text, q_type.upper(), domain, 1 if urgency else 0, session_id, q_type, now)
-    )
-    new_id = cur.lastrowid
-    conn.commit()
-    conn.close()
+    # أنشئ السؤال الجديد
+    new_id = int(datetime.utcnow().timestamp() * 1000)  # ID فريد بالميلي ثانية
+    new_q = {
+        "id":           new_id,
+        "text":         question_text,
+        "tag":          tab.upper(),
+        "domain":       domain,
+        "urgency":      urgency,
+        "answer_count": 0,
+        "submitted_by": session_id,
+        "created_at":   datetime.utcnow().isoformat(),
+    }
+
+    # أضفه في بداية القائمة المناسبة
+    q_type = tab if tab in ('expert', 'human') else 'human'
+    if q_type not in data:
+        data[q_type] = []
+    data[q_type].insert(0, new_q)
+
+    # احفظ في questions.json
+    with open(QUESTIONS_JSON, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
     return jsonify({"success": True, "id": new_id})
 
-def init_db():
-    conn = db()
-    conn.executescript("""
-    CREATE TABLE IF NOT EXISTS sessions (
-        id TEXT PRIMARY KEY,
-        name TEXT DEFAULT 'Anonymous',
-        domain TEXT DEFAULT 'General',
-        score INTEGER DEFAULT 0,
-        answers INTEGER DEFAULT 0,
-        rank_level INTEGER DEFAULT 1,
-        cert_id TEXT,
-        top_tag TEXT,
-        skills TEXT DEFAULT '[]',
-        streak INTEGER DEFAULT 0,
-        created_at TEXT,
-        updated_at TEXT,
-        user_id TEXT
-    );
-    CREATE TABLE IF NOT EXISTS answers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        session_id TEXT NOT NULL,
-        question_id TEXT NOT NULL,
-        name TEXT DEFAULT 'Anonymous',
-        domain TEXT,
-        answer_text TEXT NOT NULL,
-        pts INTEGER DEFAULT 0,
-        rank_after TEXT,
-        rank_up INTEGER DEFAULT 0,
-        skills_earned TEXT DEFAULT '[]',
-        created_at TEXT
-    );
-    CREATE TABLE IF NOT EXISTS user_questions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        text TEXT NOT NULL,
-        tag TEXT DEFAULT 'COMMUNITY',
-        domain TEXT DEFAULT 'General',
-        urgency INTEGER DEFAULT 0,
-        answer_count INTEGER DEFAULT 0,
-        submitted_by TEXT,
-        q_type TEXT DEFAULT 'human',
-        created_at TEXT
-    );
-    """)
-    conn.commit()
-    conn.close()
 
+if __name__ == '__main__':
+    init_db()
+    port = int(os.environ.get('PORT', 5000))
+    print(f"\n   PROVE IT API running on port {port}")
+    app.run(debug=False, host='0.0.0.0', port=port)
+
+# Always init DB on import (for gunicorn)
 init_db()
+
